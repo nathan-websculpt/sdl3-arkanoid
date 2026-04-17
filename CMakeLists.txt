@@ -11,7 +11,6 @@ add_library(arkanoid::lib ALIAS arkanoid_lib)
 
 set(ARKANOID_LIB_SOURCES
     src/core/game.cpp
-    src/core/platform.cpp
 )
 
 set(ARKANOID_APP_SOURCES
