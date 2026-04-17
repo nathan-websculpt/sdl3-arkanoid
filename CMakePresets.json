@@ -1,0 +1,67 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "windows-vcpkg",
+      "displayName": "Windows vcpkg (VS18 2026, x64-windows)",
+      "generator": "Visual Studio 18 2026",
+      "binaryDir": "${sourceDir}/build-win-vcpkg",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "x64-windows",
+        "VCPKG_MANIFEST_MODE": "ON"
+      }
+    },
+    {
+      "name": "windows-vcpkg-analyze",
+      "inherits": "windows-vcpkg",
+      "binaryDir": "${sourceDir}/build-win-vcpkg-analyze",
+      "cacheVariables": {
+        "ARKANOID_ENABLE_MSVC_ANALYZE": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "windows-vcpkg-debug",
+      "configurePreset": "windows-vcpkg",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-vcpkg-release",
+      "configurePreset": "windows-vcpkg",
+      "configuration": "Release",
+      "targets": [
+        "arkanoid"
+      ]
+    },
+    {
+      "name": "windows-vcpkg-debug-analyze",
+      "configurePreset": "windows-vcpkg-analyze",
+      "configuration": "Debug"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "windows-vcpkg-debug",
+      "configurePreset": "windows-vcpkg",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "windows-vcpkg-debug-analyze",
+      "configurePreset": "windows-vcpkg-analyze",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}
