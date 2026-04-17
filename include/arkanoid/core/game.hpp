@@ -3,10 +3,12 @@
 
 #include "arkanoid/sim/game_state.hpp"
 
-namespace arkanoid {
+namespace arkanoid
+{
 
-class Game {
-public:
+class Game
+{
+  public:
     Game();
 
     void setInput(bool moveLeftHeld, bool moveRightHeld, bool serveHeld);
@@ -14,7 +16,7 @@ public:
 
     const GameState& getState() const;
 
-private:
+  private:
     GameState m_state;
     bool m_moveLeftHeld{};
     bool m_moveRightHeld{};

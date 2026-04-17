@@ -1,9 +1,11 @@
 #ifndef ARKANOID_CORE_GAME_PHASE_HPP
 #define ARKANOID_CORE_GAME_PHASE_HPP
 
-namespace arkanoid {
+namespace arkanoid
+{
 
-enum class GamePhase {
+enum class GamePhase
+{
     CountdownYellow1,
     CountdownPause1,
     CountdownYellow2,

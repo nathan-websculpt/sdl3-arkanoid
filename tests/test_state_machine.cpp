@@ -1,14 +1,15 @@
-#include <algorithm>
-#include <cstddef>
-#include <limits>
-
-#include <gtest/gtest.h>
-
 #include "arkanoid/core/game.hpp"
 
-namespace {
+#include <algorithm>
+#include <cstddef>
+#include <gtest/gtest.h>
+#include <limits>
 
-void advanceToCountdownGreen(arkanoid::Game& game) {
+namespace
+{
+
+void advanceToCountdownGreen(arkanoid::Game& game)
+{
     game.update(0.25f);
     game.update(0.35f);
     game.update(0.25f);
@@ -18,7 +19,8 @@ void advanceToCountdownGreen(arkanoid::Game& game) {
     ASSERT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
-void advanceToLaunchDrop(arkanoid::Game& game) {
+void advanceToLaunchDrop(arkanoid::Game& game)
+{
     advanceToCountdownGreen(game);
     game.update(0.10f);
 
@@ -26,7 +28,8 @@ void advanceToLaunchDrop(arkanoid::Game& game) {
     ASSERT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
-void advanceToBallReady(arkanoid::Game& game) {
+void advanceToBallReady(arkanoid::Game& game)
+{
     advanceToLaunchDrop(game);
     game.update(1.0f);
 
@@ -34,7 +37,8 @@ void advanceToBallReady(arkanoid::Game& game) {
     ASSERT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
-void advanceToPlaying(arkanoid::Game& game) {
+void advanceToPlaying(arkanoid::Game& game)
+{
     advanceToBallReady(game);
     game.setInput(false, false, true);
     game.update(0.05f);
@@ -43,7 +47,8 @@ void advanceToPlaying(arkanoid::Game& game) {
     ASSERT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
-void advanceToLifeLostTransition(arkanoid::Game& game) {
+void advanceToLifeLostTransition(arkanoid::Game& game)
+{
     advanceToPlaying(game);
 
     game.setInput(false, true, false);
@@ -55,7 +60,8 @@ void advanceToLifeLostTransition(arkanoid::Game& game) {
     ASSERT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
-void advanceToLifeLostTransitionAfterBrickHit(arkanoid::Game& game) {
+void advanceToLifeLostTransitionAfterBrickHit(arkanoid::Game& game)
+{
     advanceToBallReady(game);
 
     game.setInput(true, false, false);
@@ -77,7 +83,8 @@ void advanceToLifeLostTransitionAfterBrickHit(arkanoid::Game& game) {
     ASSERT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
-void advanceLifeLostTransitionToCountdownYellow1(arkanoid::Game& game) {
+void advanceLifeLostTransitionToCountdownYellow1(arkanoid::Game& game)
+{
     ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::LifeLostTransition);
 
     game.setInput(false, false, false);
@@ -90,7 +97,8 @@ void advanceLifeLostTransitionToCountdownYellow1(arkanoid::Game& game) {
     ASSERT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
-void seedPlayingBallState(arkanoid::Game& game, float x, float y, float vx, float vy) {
+void seedPlayingBallState(arkanoid::Game& game, float x, float y, float vx, float vy)
+{
     advanceToPlaying(game);
 
     arkanoid::GameState& mutableState = const_cast<arkanoid::GameState&>(game.getState());
@@ -100,31 +108,37 @@ void seedPlayingBallState(arkanoid::Game& game, float x, float y, float vx, floa
     mutableState.ball.vy = vy;
 }
 
-void seedPlayingPaddleAndBallState(arkanoid::Game& game, float paddleX, float ballX, float ballY, float ballVx, float ballVy) {
+void seedPlayingPaddleAndBallState(arkanoid::Game& game, float paddleX, float ballX, float ballY,
+                                   float ballVx, float ballVy)
+{
     seedPlayingBallState(game, ballX, ballY, ballVx, ballVy);
 
     arkanoid::GameState& mutableState = const_cast<arkanoid::GameState&>(game.getState());
     mutableState.paddle.x = paddleX;
 }
 
-std::size_t aliveBrickCount(const arkanoid::GameState& state) {
-    return static_cast<std::size_t>(std::count_if(state.bricks.begin(), state.bricks.end(), [](const arkanoid::BrickState& brick) { return brick.alive; }));
+std::size_t aliveBrickCount(const arkanoid::GameState& state)
+{
+    return static_cast<std::size_t>(std::count_if(state.bricks.begin(), state.bricks.end(),
+                                                  [](const arkanoid::BrickState& brick)
+                                                  { return brick.alive; }));
 }
 
 } // namespace
 
-TEST(GameState, StartsInCountdown) {
+TEST(GameState, StartsInCountdown)
+{
     arkanoid::Game game;
 
-    EXPECT_EQ(game.getState().phase,
-              arkanoid::GamePhase::CountdownYellow1);
+    EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::CountdownYellow1);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
     EXPECT_FLOAT_EQ(game.getState().paddle.x, 480.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.x, 480.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.y, 368.0f);
 }
 
-TEST(GameState, AccumulatesTimerWithoutTransition) {
+TEST(GameState, AccumulatesTimerWithoutTransition)
+{
     arkanoid::Game game;
 
     game.update(0.10f);
@@ -133,7 +147,8 @@ TEST(GameState, AccumulatesTimerWithoutTransition) {
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.10f);
 }
 
-TEST(GameState, TransitionsFromCountdownYellow1ToCountdownPause1AtBoundary) {
+TEST(GameState, TransitionsFromCountdownYellow1ToCountdownPause1AtBoundary)
+{
     arkanoid::Game game;
 
     game.update(0.25f);
@@ -142,7 +157,8 @@ TEST(GameState, TransitionsFromCountdownYellow1ToCountdownPause1AtBoundary) {
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
-TEST(GameState, TransitionsFromCountdownPause1ToCountdownYellow2AtBoundary) {
+TEST(GameState, TransitionsFromCountdownPause1ToCountdownYellow2AtBoundary)
+{
     arkanoid::Game game;
 
     game.update(0.25f);
@@ -152,7 +168,8 @@ TEST(GameState, TransitionsFromCountdownPause1ToCountdownYellow2AtBoundary) {
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
-TEST(GameState, TransitionsFromCountdownYellow2ToCountdownPause2AtBoundary) {
+TEST(GameState, TransitionsFromCountdownYellow2ToCountdownPause2AtBoundary)
+{
     arkanoid::Game game;
 
     game.update(0.25f);
@@ -163,7 +180,8 @@ TEST(GameState, TransitionsFromCountdownYellow2ToCountdownPause2AtBoundary) {
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
-TEST(GameState, TransitionsFromCountdownPause2ToCountdownGreenAtBoundary) {
+TEST(GameState, TransitionsFromCountdownPause2ToCountdownGreenAtBoundary)
+{
     arkanoid::Game game;
 
     game.update(0.25f);
@@ -175,7 +193,8 @@ TEST(GameState, TransitionsFromCountdownPause2ToCountdownGreenAtBoundary) {
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
-TEST(GameState, TransitionsFromCountdownGreenToLaunchDropAtBoundary) {
+TEST(GameState, TransitionsFromCountdownGreenToLaunchDropAtBoundary)
+{
     arkanoid::Game game;
 
     advanceToCountdownGreen(game);
@@ -193,7 +212,8 @@ TEST(GameState, TransitionsFromCountdownGreenToLaunchDropAtBoundary) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 400.0f);
 }
 
-TEST(GameState, LaunchDropFollowsPaddleAndIntegratesYBeforeServe) {
+TEST(GameState, LaunchDropFollowsPaddleAndIntegratesYBeforeServe)
+{
     arkanoid::Game game;
 
     advanceToLaunchDrop(game);
@@ -212,7 +232,8 @@ TEST(GameState, LaunchDropFollowsPaddleAndIntegratesYBeforeServe) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 400.0f);
 }
 
-TEST(GameState, LaunchDropClampsAndTransitionsToBallReady) {
+TEST(GameState, LaunchDropClampsAndTransitionsToBallReady)
+{
     arkanoid::Game firstGame;
     advanceToLaunchDrop(firstGame);
 
@@ -238,7 +259,8 @@ TEST(GameState, LaunchDropClampsAndTransitionsToBallReady) {
     EXPECT_FLOAT_EQ(secondGame.getState().ball.vy, 0.0f);
 }
 
-TEST(GameState, PaddleMovementIsAppliedWhileBallReady) {
+TEST(GameState, PaddleMovementIsAppliedWhileBallReady)
+{
     arkanoid::Game game;
     advanceToBallReady(game);
 
@@ -253,7 +275,8 @@ TEST(GameState, PaddleMovementIsAppliedWhileBallReady) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 0.0f);
 }
 
-TEST(GameState, PaddleMovementClampsToBoundsWhileBallReady) {
+TEST(GameState, PaddleMovementClampsToBoundsWhileBallReady)
+{
     arkanoid::Game game;
     advanceToBallReady(game);
 
@@ -272,7 +295,8 @@ TEST(GameState, PaddleMovementClampsToBoundsWhileBallReady) {
     EXPECT_FLOAT_EQ(game.getState().ball.x, 960.0f);
 }
 
-TEST(GameState, OpposingHorizontalInputProducesNoMovementWhileBallReady) {
+TEST(GameState, OpposingHorizontalInputProducesNoMovementWhileBallReady)
+{
     arkanoid::Game game;
     advanceToBallReady(game);
 
@@ -289,7 +313,8 @@ TEST(GameState, OpposingHorizontalInputProducesNoMovementWhileBallReady) {
     EXPECT_FLOAT_EQ(game.getState().ball.y, 620.0f);
 }
 
-TEST(GameState, ServeHeldAcrossBallReadyEntryDoesNotTriggerPlaying) {
+TEST(GameState, ServeHeldAcrossBallReadyEntryDoesNotTriggerPlaying)
+{
     arkanoid::Game game;
     advanceToLaunchDrop(game);
 
@@ -307,7 +332,8 @@ TEST(GameState, ServeHeldAcrossBallReadyEntryDoesNotTriggerPlaying) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 0.0f);
 }
 
-TEST(GameState, ServeRisingEdgeTransitionsFromBallReadyToPlayingWithServeVelocity) {
+TEST(GameState, ServeRisingEdgeTransitionsFromBallReadyToPlayingWithServeVelocity)
+{
     arkanoid::Game game;
     advanceToBallReady(game);
 
@@ -322,7 +348,8 @@ TEST(GameState, ServeRisingEdgeTransitionsFromBallReadyToPlayingWithServeVelocit
     EXPECT_FLOAT_EQ(game.getState().ball.vy, -400.0f);
 }
 
-TEST(GameState, FirstPlayingUpdateAfterServeIntegratesFreeMotionOnly) {
+TEST(GameState, FirstPlayingUpdateAfterServeIntegratesFreeMotionOnly)
+{
     arkanoid::Game game;
     advanceToBallReady(game);
 
@@ -350,7 +377,8 @@ TEST(GameState, FirstPlayingUpdateAfterServeIntegratesFreeMotionOnly) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, -400.0f);
 }
 
-TEST(GameState, PlayingIntegratesDeterministicFreeMotionAcrossMultipleSteps) {
+TEST(GameState, PlayingIntegratesDeterministicFreeMotionAcrossMultipleSteps)
+{
     arkanoid::Game game;
     advanceToPlaying(game);
 
@@ -372,7 +400,8 @@ TEST(GameState, PlayingIntegratesDeterministicFreeMotionAcrossMultipleSteps) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, -400.0f);
 }
 
-TEST(GameState, OvershootResetsTimerWithoutCarry) {
+TEST(GameState, OvershootResetsTimerWithoutCarry)
+{
     arkanoid::Game game;
 
     game.update(0.30f);
@@ -381,7 +410,8 @@ TEST(GameState, OvershootResetsTimerWithoutCarry) {
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
-TEST(GameState, IgnoresNonFiniteDt) {
+TEST(GameState, IgnoresNonFiniteDt)
+{
     arkanoid::Game game;
 
     game.update(0.10f);
@@ -394,7 +424,8 @@ TEST(GameState, IgnoresNonFiniteDt) {
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.10f);
 }
 
-TEST(GameState, IgnoresNonPositiveDt) {
+TEST(GameState, IgnoresNonPositiveDt)
+{
     arkanoid::Game game;
 
     game.update(0.10f);
@@ -407,7 +438,8 @@ TEST(GameState, IgnoresNonPositiveDt) {
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.10f);
 }
 
-TEST(GameState, InvalidDtDoesNotMutateBallReadyStateOrConsumeServeEdge) {
+TEST(GameState, InvalidDtDoesNotMutateBallReadyStateOrConsumeServeEdge)
+{
     arkanoid::Game game;
     advanceToBallReady(game);
     game.setInput(false, false, true);
@@ -434,7 +466,8 @@ TEST(GameState, InvalidDtDoesNotMutateBallReadyStateOrConsumeServeEdge) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, -400.0f);
 }
 
-TEST(GameState, InvalidDtDoesNotMutatePlayingState) {
+TEST(GameState, InvalidDtDoesNotMutatePlayingState)
+{
     arkanoid::Game game;
     advanceToPlaying(game);
     game.setInput(false, false, false);
@@ -459,12 +492,14 @@ TEST(GameState, InvalidDtDoesNotMutatePlayingState) {
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::Playing);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, stateBeforeInvalidDt.phaseTime + 0.05f);
     EXPECT_FLOAT_EQ(game.getState().ball.x, stateBeforeInvalidDt.ball.x);
-    EXPECT_FLOAT_EQ(game.getState().ball.y, stateBeforeInvalidDt.ball.y + (stateBeforeInvalidDt.ball.vy * 0.05f));
+    EXPECT_FLOAT_EQ(game.getState().ball.y,
+                    stateBeforeInvalidDt.ball.y + (stateBeforeInvalidDt.ball.vy * 0.05f));
     EXPECT_FLOAT_EQ(game.getState().ball.vx, stateBeforeInvalidDt.ball.vx);
     EXPECT_FLOAT_EQ(game.getState().ball.vy, stateBeforeInvalidDt.ball.vy);
 }
 
-TEST(GameState, LeftWallBounceReflectsAndClamps) {
+TEST(GameState, LeftWallBounceReflectsAndClamps)
+{
     arkanoid::Game game;
     seedPlayingBallState(game, 10.0f, 300.0f, -100.0f, 0.0f);
     game.setInput(false, false, false);
@@ -479,7 +514,8 @@ TEST(GameState, LeftWallBounceReflectsAndClamps) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 0.0f);
 }
 
-TEST(GameState, RightWallBounceReflectsAndClamps) {
+TEST(GameState, RightWallBounceReflectsAndClamps)
+{
     arkanoid::Game game;
     seedPlayingBallState(game, 950.0f, 300.0f, 100.0f, 0.0f);
     game.setInput(false, false, false);
@@ -494,7 +530,8 @@ TEST(GameState, RightWallBounceReflectsAndClamps) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 0.0f);
 }
 
-TEST(GameState, TopWallBounceReflectsAndClamps) {
+TEST(GameState, TopWallBounceReflectsAndClamps)
+{
     arkanoid::Game game;
     seedPlayingBallState(game, 400.0f, 10.0f, 0.0f, -100.0f);
     game.setInput(false, false, false);
@@ -509,7 +546,8 @@ TEST(GameState, TopWallBounceReflectsAndClamps) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 100.0f);
 }
 
-TEST(GameState, DirectDownwardPaddleHitReflectsUpward) {
+TEST(GameState, DirectDownwardPaddleHitReflectsUpward)
+{
     arkanoid::Game game;
     seedPlayingPaddleAndBallState(game, 400.0f, 400.0f, 610.0f, 0.0f, 100.0f);
     game.setInput(false, false, false);
@@ -524,7 +562,8 @@ TEST(GameState, DirectDownwardPaddleHitReflectsUpward) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, -100.0f);
 }
 
-TEST(GameState, SymmetricPaddleHitsProduceOppositeHorizontalDirections) {
+TEST(GameState, SymmetricPaddleHitsProduceOppositeHorizontalDirections)
+{
     arkanoid::Game leftHitGame;
     seedPlayingPaddleAndBallState(leftHitGame, 400.0f, 380.0f, 610.0f, 0.0f, 100.0f);
     leftHitGame.setInput(false, false, false);
@@ -544,7 +583,8 @@ TEST(GameState, SymmetricPaddleHitsProduceOppositeHorizontalDirections) {
     EXPECT_LT(rightHitGame.getState().ball.vy, 0.0f);
 }
 
-TEST(GameState, PaddleHitHorizontalDeflectionMagnitudeIncreasesWithOffset) {
+TEST(GameState, PaddleHitHorizontalDeflectionMagnitudeIncreasesWithOffset)
+{
     arkanoid::Game nearCenterHitGame;
     seedPlayingPaddleAndBallState(nearCenterHitGame, 400.0f, 410.0f, 610.0f, 0.0f, 100.0f);
     nearCenterHitGame.setInput(false, false, false);
@@ -565,7 +605,8 @@ TEST(GameState, PaddleHitHorizontalDeflectionMagnitudeIncreasesWithOffset) {
     EXPECT_LT(farFromCenterHitGame.getState().ball.vy, 0.0f);
 }
 
-TEST(GameState, PaddleMissDoesNotBounce) {
+TEST(GameState, PaddleMissDoesNotBounce)
+{
     arkanoid::Game game;
     seedPlayingPaddleAndBallState(game, 400.0f, 500.0f, 610.0f, 0.0f, 100.0f);
     game.setInput(false, false, false);
@@ -580,7 +621,8 @@ TEST(GameState, PaddleMissDoesNotBounce) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 100.0f);
 }
 
-TEST(GameState, WallThenPaddleOrderingIsDeterministic) {
+TEST(GameState, WallThenPaddleOrderingIsDeterministic)
+{
     arkanoid::Game game;
     seedPlayingPaddleAndBallState(game, 20.0f, 20.0f, 610.0f, -600.0f, 100.0f);
     game.setInput(false, false, false);
@@ -595,7 +637,8 @@ TEST(GameState, WallThenPaddleOrderingIsDeterministic) {
     EXPECT_LT(game.getState().ball.vy, 0.0f);
 }
 
-TEST(GameState, InvalidDtDoesNotMutatePendingPaddleCollision) {
+TEST(GameState, InvalidDtDoesNotMutatePendingPaddleCollision)
+{
     arkanoid::Game game;
     seedPlayingPaddleAndBallState(game, 400.0f, 400.0f, 610.0f, 0.0f, 100.0f);
     game.setInput(false, false, false);
@@ -625,7 +668,8 @@ TEST(GameState, InvalidDtDoesNotMutatePendingPaddleCollision) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, -100.0f);
 }
 
-TEST(GameState, BrickHitRemovesExactlyOneBrick) {
+TEST(GameState, BrickHitRemovesExactlyOneBrick)
+{
     arkanoid::Game game;
     advanceToPlaying(game);
 
@@ -650,7 +694,8 @@ TEST(GameState, BrickHitRemovesExactlyOneBrick) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, -100.0f);
 }
 
-TEST(GameState, RemovedBrickNoLongerCollides) {
+TEST(GameState, RemovedBrickNoLongerCollides)
+{
     arkanoid::Game game;
     advanceToPlaying(game);
 
@@ -685,7 +730,8 @@ TEST(GameState, RemovedBrickNoLongerCollides) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 100.0f);
 }
 
-TEST(GameState, NonHitLeavesBricksUnchanged) {
+TEST(GameState, NonHitLeavesBricksUnchanged)
+{
     arkanoid::Game game;
     advanceToPlaying(game);
 
@@ -707,7 +753,8 @@ TEST(GameState, NonHitLeavesBricksUnchanged) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 50.0f);
 }
 
-TEST(GameState, CrossingBottomBoundaryTransitionsToLifeLostTransition) {
+TEST(GameState, CrossingBottomBoundaryTransitionsToLifeLostTransition)
+{
     arkanoid::Game crossingGame;
     seedPlayingBallState(crossingGame, 400.0f, 710.0f, 0.0f, 100.0f);
     crossingGame.setInput(false, false, false);
@@ -732,7 +779,8 @@ TEST(GameState, CrossingBottomBoundaryTransitionsToLifeLostTransition) {
     EXPECT_FLOAT_EQ(equalityGame.getState().ball.y, 720.0f);
 }
 
-TEST(GameState, NonCrossingBottomBoundaryRemainsPlaying) {
+TEST(GameState, NonCrossingBottomBoundaryRemainsPlaying)
+{
     arkanoid::Game game;
     seedPlayingBallState(game, 400.0f, 690.0f, 0.0f, 100.0f);
     game.setInput(false, false, false);
@@ -747,7 +795,8 @@ TEST(GameState, NonCrossingBottomBoundaryRemainsPlaying) {
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 100.0f);
 }
 
-TEST(GameState, BottomTransitionIsSimulationOnly) {
+TEST(GameState, BottomTransitionIsSimulationOnly)
+{
     arkanoid::Game game;
     seedPlayingBallState(game, 400.0f, 710.0f, 0.0f, 100.0f);
 
@@ -757,7 +806,8 @@ TEST(GameState, BottomTransitionIsSimulationOnly) {
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
-TEST(GameState, BottomLossEventuallyResetsIntoCountdownYellow1) {
+TEST(GameState, BottomLossEventuallyResetsIntoCountdownYellow1)
+{
     arkanoid::Game game;
     advanceToLifeLostTransition(game);
 
@@ -771,7 +821,8 @@ TEST(GameState, BottomLossEventuallyResetsIntoCountdownYellow1) {
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
-TEST(GameState, ScoreIsPreservedAcrossLifeLossReset) {
+TEST(GameState, ScoreIsPreservedAcrossLifeLossReset)
+{
     arkanoid::Game game;
     advanceToLifeLostTransitionAfterBrickHit(game);
 
@@ -783,7 +834,8 @@ TEST(GameState, ScoreIsPreservedAcrossLifeLossReset) {
     EXPECT_EQ(game.getState().score, scoreBeforeReset);
 }
 
-TEST(GameState, RemovedBricksRemainRemovedAcrossLifeLossReset) {
+TEST(GameState, RemovedBricksRemainRemovedAcrossLifeLossReset)
+{
     arkanoid::Game game;
     advanceToLifeLostTransitionAfterBrickHit(game);
 
@@ -796,7 +848,8 @@ TEST(GameState, RemovedBricksRemainRemovedAcrossLifeLossReset) {
     EXPECT_EQ(aliveBrickCount(game.getState()), aliveBeforeReset);
 }
 
-TEST(GameState, PaddleAndBallRestoreToCanonicalPreServePoseOnReset) {
+TEST(GameState, PaddleAndBallRestoreToCanonicalPreServePoseOnReset)
+{
     arkanoid::Game canonicalGame;
     const arkanoid::GameState canonicalPreServeState = canonicalGame.getState();
 
