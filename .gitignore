@@ -1,6 +1,6 @@
-.vscode/
-.vs/
+.vscode
 
 /build/
 /build-win-vcpkg/
 /build-win-vcpkg-analyze/
+/dist/
