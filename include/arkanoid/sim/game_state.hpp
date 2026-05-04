@@ -1,36 +1,31 @@
 #ifndef ARKANOID_SIM_GAME_STATE_HPP
 #define ARKANOID_SIM_GAME_STATE_HPP
 
-#include "arkanoid/core/game_phase.hpp"
-
 #include <array>
 #include <cstdint>
 
-namespace arkanoid
-{
+#include "arkanoid/core/game_phase.hpp"
 
-struct PaddleState
-{
+namespace arkanoid {
+
+struct PaddleState {
     float x{};
 };
 
-struct BallState
-{
+struct BallState {
     float x{};
     float y{};
     float vx{};
     float vy{};
 };
 
-struct BrickState
-{
+struct BrickState {
     float x{};
     float y{};
     bool alive{};
 };
 
-struct GameState
-{
+struct GameState {
     PaddleState paddle;
     BallState ball;
     std::array<BrickState, 24> bricks{};

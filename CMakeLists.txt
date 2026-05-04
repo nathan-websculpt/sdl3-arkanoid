@@ -2,9 +2,14 @@ cmake_minimum_required(VERSION 3.21)
 
 project(arkanoid_portfolio LANGUAGES CXX)
 
+if(POLICY CMP0207)
+    cmake_policy(SET CMP0207 NEW)
+endif()
+
 option(ARKANOID_ENABLE_MSVC_ANALYZE "Enable MSVC /analyze for selected targets" OFF)
 
 include(CTest)
+include(GNUInstallDirs)
 
 add_library(arkanoid_lib STATIC)
 add_library(arkanoid::lib ALIAS arkanoid_lib)
@@ -15,6 +20,11 @@ set(ARKANOID_LIB_SOURCES
 
 set(ARKANOID_APP_SOURCES
     src/main.cpp
+    src/app/application.cpp
+    src/app/frame_timing.cpp
+    src/app/input.cpp
+    src/app/run_mode.cpp
+    src/render/render_frame.cpp
 )
 
 target_sources(arkanoid_lib PRIVATE ${ARKANOID_LIB_SOURCES})
@@ -37,7 +47,18 @@ endif()
 
 add_executable(arkanoid)
 target_sources(arkanoid PRIVATE ${ARKANOID_APP_SOURCES})
+target_include_directories(arkanoid
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+)
 target_link_libraries(arkanoid PRIVATE arkanoid::lib)
+
+if(MSVC)
+    target_link_options(arkanoid PRIVATE
+        "$<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>"
+        "$<$<CONFIG:Release>:/ENTRY:mainCRTStartup>"
+    )
+endif()
 
 if(MSVC AND ARKANOID_ENABLE_MSVC_ANALYZE)
     target_compile_options(arkanoid_lib PRIVATE /analyze)
@@ -46,4 +67,32 @@ endif()
 
 if(BUILD_TESTING)
     add_subdirectory(tests)
+endif()
+
+install(TARGETS arkanoid
+    RUNTIME_DEPENDENCY_SET arkanoid_runtime_dependencies
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+)
+
+install(FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
+    "${CMAKE_CURRENT_SOURCE_DIR}/THIRD_PARTY_LICENSES.txt"
+    DESTINATION "."
+)
+
+if(WIN32)
+    install(RUNTIME_DEPENDENCY_SET arkanoid_runtime_dependencies
+        PRE_EXCLUDE_REGEXES
+            [[api-ms-.*]]
+            [[ext-ms-.*]]
+        POST_EXCLUDE_REGEXES
+            [[.*[\\/][Ww][Ii][Nn][Dd][Oo][Ww][Ss][\\/][Ss][Yy][Ss][Tt][Ee][Mm]32[\\/].*]]
+            [[.*[\\/][Ww][Ii][Nn][Dd][Oo][Ww][Ss][\\/][Ss][Yy][Ss][Ww][Oo][Ww]64[\\/].*]]
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    )
+endif()
+
+if(MSVC)
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION "${CMAKE_INSTALL_BINDIR}")
+    include(InstallRequiredSystemLibraries)
 endif()

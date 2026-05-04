@@ -41,6 +41,14 @@
       ]
     },
     {
+      "name": "windows-vcpkg-release-tests",
+      "configurePreset": "windows-vcpkg",
+      "configuration": "Release",
+      "targets": [
+        "arkanoid_tests"
+      ]
+    },
+    {
       "name": "windows-vcpkg-debug-analyze",
       "configurePreset": "windows-vcpkg-analyze",
       "configuration": "Debug"
@@ -51,6 +59,14 @@
       "name": "windows-vcpkg-debug",
       "configurePreset": "windows-vcpkg",
       "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "windows-vcpkg-release",
+      "configurePreset": "windows-vcpkg",
+      "configuration": "Release",
       "output": {
         "outputOnFailure": true
       }

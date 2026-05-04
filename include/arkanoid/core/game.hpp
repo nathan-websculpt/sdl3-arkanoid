@@ -3,11 +3,9 @@
 
 #include "arkanoid/sim/game_state.hpp"
 
-namespace arkanoid
-{
+namespace arkanoid {
 
-class Game
-{
+class Game {
   public:
     Game();
 

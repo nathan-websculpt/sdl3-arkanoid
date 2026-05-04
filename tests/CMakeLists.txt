@@ -1,7 +1,11 @@
 find_package(GTest CONFIG REQUIRED)
 
 add_executable(arkanoid_tests
-    test_state_machine.cpp
+    test_countdown_and_serve.cpp
+    test_dt_validation.cpp
+    test_wall_and_paddle_collision.cpp
+    test_bricks_and_board_clear.cpp
+    test_life_loss_and_reset.cpp
 )
 
 target_link_libraries(arkanoid_tests
