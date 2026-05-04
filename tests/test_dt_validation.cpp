@@ -1,8 +1,7 @@
-#include "game_test_helpers.hpp"
-
 #include <gtest/gtest.h>
-
 #include <limits>
+
+#include "game_test_helpers.hpp"
 
 using namespace arkanoid::test;
 
@@ -98,4 +97,3 @@ TEST(GameState, InvalidDtDoesNotMutatePlayingState) {
     EXPECT_FLOAT_EQ(game.getState().ball.vx, stateBeforeInvalidDt.ball.vx);
     EXPECT_FLOAT_EQ(game.getState().ball.vy, stateBeforeInvalidDt.ball.vy);
 }
-

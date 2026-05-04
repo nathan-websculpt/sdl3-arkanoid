@@ -1,8 +1,7 @@
-#include "game_test_helpers.hpp"
-
+#include <cstddef>
 #include <gtest/gtest.h>
 
-#include <cstddef>
+#include "game_test_helpers.hpp"
 
 using namespace arkanoid::test;
 
@@ -111,4 +110,3 @@ TEST(GameState, PaddleAndBallRestoreToCanonicalPreServePoseOnReset) {
     EXPECT_FLOAT_EQ(game.getState().ball.vx, canonicalPreServeState.ball.vx);
     EXPECT_FLOAT_EQ(game.getState().ball.vy, canonicalPreServeState.ball.vy);
 }
-

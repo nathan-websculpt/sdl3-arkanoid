@@ -1,8 +1,7 @@
-#include "game_test_helpers.hpp"
-
 #include <gtest/gtest.h>
-
 #include <limits>
+
+#include "game_test_helpers.hpp"
 
 using namespace arkanoid::test;
 
@@ -166,4 +165,3 @@ TEST(GameState, InvalidDtDoesNotMutatePendingPaddleCollision) {
     EXPECT_FLOAT_EQ(game.getState().ball.vx, 0.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.vy, -100.0f);
 }
-

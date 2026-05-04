@@ -1,6 +1,6 @@
-#include "game_test_helpers.hpp"
-
 #include <gtest/gtest.h>
+
+#include "game_test_helpers.hpp"
 
 using namespace arkanoid::test;
 
@@ -261,4 +261,3 @@ TEST(GameState, PlayingIntegratesDeterministicFreeMotionAcrossMultipleSteps) {
     EXPECT_FLOAT_EQ(game.getState().ball.vx, 0.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.vy, -400.0f);
 }
-

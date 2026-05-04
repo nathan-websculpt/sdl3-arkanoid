@@ -1,8 +1,7 @@
-#include "game_test_helpers.hpp"
-
+#include <cstddef>
 #include <gtest/gtest.h>
 
-#include <cstddef>
+#include "game_test_helpers.hpp"
 
 using namespace arkanoid::test;
 
@@ -183,4 +182,3 @@ TEST(GameState, InvalidDtDoesNotMutateBoardClearedTransition) {
     EXPECT_EQ(aliveBrickCount(game.getState()), static_cast<std::size_t>(24));
     EXPECT_EQ(game.getState().score, 0u);
 }
-

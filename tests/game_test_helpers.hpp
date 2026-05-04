@@ -1,11 +1,11 @@
 #ifndef ARKANOID_TESTS_GAME_TEST_HELPERS_HPP
 #define ARKANOID_TESTS_GAME_TEST_HELPERS_HPP
 
-#include "arkanoid/core/game.hpp"
-
 #include <algorithm>
 #include <cstddef>
 #include <gtest/gtest.h>
+
+#include "arkanoid/core/game.hpp"
 
 namespace arkanoid::test {
 
@@ -101,8 +101,8 @@ inline void seedPlayingBallState(arkanoid::Game& game, float x, float y, float v
     mutableState.ball.vy = vy;
 }
 
-inline void seedPlayingPaddleAndBallState(arkanoid::Game& game, float paddleX, float ballX, float ballY,
-                                          float ballVx, float ballVy) {
+inline void seedPlayingPaddleAndBallState(arkanoid::Game& game, float paddleX, float ballX,
+                                          float ballY, float ballVx, float ballVy) {
     seedPlayingBallState(game, ballX, ballY, ballVx, ballVy);
 
     arkanoid::GameState& mutableState = const_cast<arkanoid::GameState&>(game.getState());
