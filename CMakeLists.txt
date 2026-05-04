@@ -37,7 +37,6 @@ target_include_directories(arkanoid_lib
 )
 
 find_package(SDL3 CONFIG REQUIRED)
-target_link_libraries(arkanoid_lib PUBLIC SDL3::SDL3)
 
 if(MSVC)
     target_compile_options(arkanoid_lib PRIVATE /W4 /permissive- /EHsc)
@@ -51,7 +50,11 @@ target_include_directories(arkanoid
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
-target_link_libraries(arkanoid PRIVATE arkanoid::lib)
+target_link_libraries(arkanoid
+    PRIVATE
+        arkanoid::lib
+        SDL3::SDL3
+)
 
 if(MSVC)
     target_link_options(arkanoid PRIVATE
