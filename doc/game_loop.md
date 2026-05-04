@@ -4,7 +4,7 @@ This project uses a fixed-step simulation loop with SDL as the platform layer.
 
 ## Frame Flow
 
-Each outer frame in `src/main.cpp` does:
+Each outer frame in `src/app/application.cpp` does:
 
 1. poll SDL events
 2. sample keyboard state
@@ -19,7 +19,7 @@ Canonical flow:
 
 ## Timing Model
 
-Current constants in `src/main.cpp`:
+Current timing constants:
 
 - fixed step: `1 / 120` seconds
 - max frame delta clamp: `0.25` seconds
@@ -35,7 +35,7 @@ Physics/time integration is fixed-step; input is sampled once per outer frame.
 
 ## Input Flow
 
-`main.cpp` samples held key state once per outer frame:
+`src/app/application.cpp` samples held key state once per outer frame:
 
 - left
 - right
@@ -58,18 +58,21 @@ Depending on phase, it advances timers/state and may:
 - integrate live ball movement
 - resolve wall/paddle/brick collisions
 - increment score on brick hit
+- trigger board clear auto-restart/new game
 - trigger life-loss and reset transitions
 
 Invalid `dt` (`NaN`, `inf`, zero, or negative) is ignored.
 
 ## Render Boundary
 
-After fixed-step updates for the frame, `main.cpp` reads `const GameState&` and renders.
+After fixed-step updates for the frame, rendering reads `const GameState&`.
 Rendering draws current state only and does not mutate gameplay state.
 
 ## Phase-Driven Runtime
 
-The simulation uses explicit phases (countdown -> launch-drop -> ball-ready -> playing -> life-loss/reset).
+The simulation uses explicit phases: countdown -> launch-drop -> ball-ready -> playing.
+From `Playing`, a bottom miss enters life-loss/reset, while board clear enters auto-restart/new game.
 Fixed-step updates advance both object motion and phase progression.
 When a phase threshold is crossed, `phaseTime` is reset to `0` and overshoot is dropped.
-Each `Game::update()` call executes one switch path for the current phase; `LifeLostTransition` and `ResetTransition` are transient phases that advance on subsequent updates.
+Each `Game::update()` call executes one switch path for the current phase.
+`BoardClearedTransition`, `LifeLostTransition`, and `ResetTransition` advance on subsequent valid updates.

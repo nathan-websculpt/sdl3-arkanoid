@@ -2,15 +2,19 @@
 
 The runtime is intentionally small:
 
-- a thin SDL shell in `src/main.cpp`
+- a tiny entrypoint in `src/main.cpp`
+- an SDL application shell in `src/app/application.cpp`
+- a read-only renderer in `src/render/render_frame.cpp`
 - one authoritative simulation core in `src/core/game.cpp`
 
 ## High-Level Shape
 
 Main runtime pieces:
 
-1. Platform shell: `src/main.cpp`
-2. Simulation core: `src/core/game.cpp`
+1. Entrypoint: `src/main.cpp`
+2. Platform shell: `src/app/application.cpp`
+3. Renderer: `src/render/render_frame.cpp`
+4. Simulation core: `src/core/game.cpp`
 
 Public state and phase types:
 
@@ -20,7 +24,11 @@ Public state and phase types:
 
 ## Ownership Boundaries
 
-### `main.cpp`
+### `src/main.cpp`
+
+Parses run mode and enters the application runtime.
+
+### `src/app/application.cpp`
 
 Owns platform concerns:
 
@@ -29,9 +37,13 @@ Owns platform concerns:
 - event polling
 - keyboard sampling
 - fixed-step accumulation and frame timing
-- draw calls
 
-`main.cpp` does not own gameplay rules.
+It does not own gameplay rules.
+
+### `src/render/render_frame.cpp`
+
+Owns draw calls.
+It reads `const GameState&` and does not mutate gameplay state.
 
 ### `arkanoid::Game`
 
@@ -74,10 +86,11 @@ Current phases:
 - `LaunchDrop`
 - `BallReady`
 - `Playing`
+- `BoardClearedTransition`
 - `LifeLostTransition`
 - `ResetTransition`
 
-This enum-backed phase machine is the full gameplay progression model.
+This enum-backed state machine is the full gameplay progression model.
 
 ## Simulation-Owned Behavior
 
@@ -90,15 +103,24 @@ This enum-backed phase machine is the full gameplay progression model.
 - ball integration
 - wall/paddle/brick collision responses
 - score increments
+- board clear auto-restart/new game
 - miss and reset transitions
 
 In runtime code, gameplay mutation flows through `Game::update()`.
 
-## Reset Semantics
+## Restart And Reset Semantics
+
+Board clear starts a new game:
+
+- final brick hit during `Playing`
+- transition to `BoardClearedTransition`
+- next valid update recreates bricks and clears score
+- restore canonical pre-serve paddle/ball pose
+- restart countdown at `CountdownYellow1`
 
 Life-loss reset is explicit:
 
-- miss during `Playing`
+- bottom miss during `Playing`
 - transition to `LifeLostTransition`
 - transition to `ResetTransition`
 - restore canonical pre-serve paddle/ball pose
@@ -113,7 +135,7 @@ Life-loss reset does not recreate the full startup state:
 
 Rendering is immediate and read-only.
 
-`main.cpp` reads `const GameState&` and draws bricks, paddle, ball, and countdown indicator.
+`render_frame.cpp` reads `const GameState&` and draws bricks, paddle, ball, and countdown indicator.
 Rendering does not mutate gameplay state.
 
 ## Collision Model

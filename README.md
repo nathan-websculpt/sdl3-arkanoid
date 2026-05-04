@@ -18,8 +18,8 @@ This project keeps the runtime small and explicit:
 - no score HUD
 - no powerups or special brick types
 - no lives counter
-- no game-over state
-- no level-clear / win state
+- no game-over or win screen
+- board clear auto-restarts a new game
 
 ## Requirements
 
@@ -32,7 +32,9 @@ This project keeps the runtime small and explicit:
 
 `SDL events -> input sample -> fixed-step simulation -> read-only render`
 
-- `src/main.cpp` owns platform loop and rendering
+- `src/main.cpp` is the entrypoint
+- `src/app/application.cpp` owns SDL setup, the event loop, and fixed-step timing
+- `src/render/render_frame.cpp` renders read-only from `GameState`
 - In runtime code, gameplay mutation is performed through `arkanoid::Game::update()`
 - `GameState` is authoritative runtime state
 
@@ -43,10 +45,11 @@ This project keeps the runtime small and explicit:
 - Space: serve on press in `BallReady`
 - Close window: quit
 
-## Architecture
+## Docs
 
 - [Architecture](doc/architecture.md) - ownership boundaries and state model
 - [Game Loop](doc/game_loop.md) - fixed-step timing and frame/update flow
+- [Release Gate](doc/release_gate.md) - packaged Windows release checks
 
 ## Running
 
@@ -110,5 +113,5 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 This project is licensed under the MIT License.
 
-Third-party libraries, fonts, and audio assets are licensed separately.
+Third-party libraries are licensed separately.
 See [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES.txt) for details.
