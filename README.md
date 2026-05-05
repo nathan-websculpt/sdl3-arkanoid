@@ -25,7 +25,7 @@ This project keeps the runtime small and explicit:
 
 - Windows PowerShell workflow
 - Visual Studio with MSVC (presets use generator `Visual Studio 18 2026`)
-- CMake 3.21 or newer
+- CMake 3.25 or newer recommended for the preset workflow.
 - `VCPKG_ROOT` set to a valid vcpkg install (or pass `-VcpkgRoot` to scripts)
 
 ## How It Runs
