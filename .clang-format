@@ -6,6 +6,8 @@ BreakBeforeBraces: Attach
 NamespaceIndentation: None
 SeparateDefinitionBlocks: Always
 
+AlwaysBreakTemplateDeclarations: Yes
+
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: false
 AllowShortBlocksOnASingleLine: Never
