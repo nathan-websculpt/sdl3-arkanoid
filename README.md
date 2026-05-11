@@ -53,22 +53,34 @@ This project keeps the runtime small and explicit:
 
 ## Running
 
+PowerShell usage: from PowerShell, use direct script invocation (`.\tools\windows\*.ps1` or `./tools/windows/*.ps1`) after execution policy is handled. For a one-off blocked session, run:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+then use the direct commands below. When launching from a non-PowerShell shell or needing a one-off fallback:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\windows\build.ps1
+```
+
 One-line build loop
 ```powershell
 # set once per shell (or pass -VcpkgRoot directly to the script)
 $env:VCPKG_ROOT = "C:\path\to\vcpkg"
 
 # debug build (auto-launches game)
-powershell -ExecutionPolicy Bypass -File .\tools\windows\build.ps1
+.\tools\windows\build.ps1
 
 # debug build without auto-launch
-powershell -ExecutionPolicy Bypass -File .\tools\windows\build.ps1 -NoRun
+.\tools\windows\build.ps1 -NoRun
 
 # clean debug build without auto-launch
-powershell -ExecutionPolicy Bypass -File .\tools\windows\build.ps1 -Config Debug -Clean -NoRun
+.\tools\windows\build.ps1 -Config Debug -Clean -NoRun
 
 # release build (does not auto-launch)
-powershell -ExecutionPolicy Bypass -File .\tools\windows\build.ps1 -Config Release -NoRun
+.\tools\windows\build.ps1 -Config Release -NoRun
 ```
 
 `build.ps1` supports `-Config Debug|Release`, `-Clean`, `-NoRun`, and `-VcpkgRoot <path>`.
@@ -77,13 +89,13 @@ Run tests through the dedicated test entry point:
 
 ```powershell
 # debug tests
-powershell -ExecutionPolicy Bypass -File .\tools\windows\test.ps1
+.\tools\windows\test.ps1
 
 # release tests
-powershell -ExecutionPolicy Bypass -File .\tools\windows\test.ps1 -Config Release
+.\tools\windows\test.ps1 -Config Release
 
 # reuse an existing configure and filter tests
-powershell -ExecutionPolicy Bypass -File .\tools\windows\test.ps1 -SkipConfigure -TestFilter GameState
+.\tools\windows\test.ps1 -SkipConfigure -TestFilter GameState
 ```
 
 `test.ps1` supports `-Config Debug|Release`, `-Clean`, `-SkipConfigure`, `-TestFilter <regex>`, and `-VcpkgRoot <path>`. It builds `arkanoid_tests` before running CTest and fails if no tests are discovered or matched.
@@ -92,7 +104,7 @@ powershell -ExecutionPolicy Bypass -File .\tools\windows\test.ps1 -SkipConfigure
 
 One-line
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\windows\analyze.ps1
+.\tools\windows\analyze.ps1
 ```
 
 Or
@@ -105,22 +117,18 @@ ctest --preset windows-vcpkg-debug-analyze
 `analyze.ps1` runs configure + build + ctest on the analyze presets.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\windows\analyze.ps1
-powershell -ExecutionPolicy Bypass -File .\tools\windows\analyze.ps1 -Clean
-powershell -ExecutionPolicy Bypass -File .\tools\windows\analyze.ps1 -SkipConfigure
+.\tools\windows\analyze.ps1
+.\tools\windows\analyze.ps1 -Clean
+.\tools\windows\analyze.ps1 -SkipConfigure
 ```
 
 `analyze.ps1` supports `-Clean`, `-SkipConfigure`, and `-VcpkgRoot <path>`. It fails if the analyze CTest lane discovers or runs zero tests.
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-```
 
 ## Release
 
 Run the Windows release gate:
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\windows\release.ps1
+.\tools\windows\release.ps1
 ```
 
 `release.ps1` supports `-VcpkgRoot <path>` and `-Clean`. It validates, tests, smokes, packages, and writes release status/latest JSON. See [Release Gate](doc/release_gate.md) for the full gate breakdown.
