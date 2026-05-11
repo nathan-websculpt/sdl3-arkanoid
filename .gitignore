@@ -5,3 +5,4 @@
 /build-win-vcpkg/
 /build-win-vcpkg-analyze/
 /dist/
+/out/

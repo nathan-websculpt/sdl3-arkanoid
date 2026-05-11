@@ -25,7 +25,7 @@ This project keeps the runtime small and explicit:
 
 - Windows PowerShell workflow
 - Visual Studio with MSVC (presets use generator `Visual Studio 18 2026`)
-- CMake 3.25 or newer recommended for the preset workflow.
+- CMake 4.2 or newer is required for the preset workflow.
 - `VCPKG_ROOT` set to a valid vcpkg install (or pass `-VcpkgRoot` to scripts)
 
 ## How It Runs
@@ -53,26 +53,40 @@ This project keeps the runtime small and explicit:
 
 ## Running
 
-One-line dev loop
+One-line build loop
 ```powershell
 # set once per shell (or pass -VcpkgRoot directly to the script)
 $env:VCPKG_ROOT = "C:\path\to\vcpkg"
 
 # debug build (auto-launches game)
-powershell -ExecutionPolicy Bypass -File .\tools\windows\dev_build.ps1
+powershell -ExecutionPolicy Bypass -File .\tools\windows\build.ps1
 
 # debug build without auto-launch
-powershell -ExecutionPolicy Bypass -File .\tools\windows\dev_build.ps1 -NoRun
+powershell -ExecutionPolicy Bypass -File .\tools\windows\build.ps1 -NoRun
 
-# run tests (debug preset only; still auto-launches game)
-powershell -ExecutionPolicy Bypass -File .\tools\windows\dev_build.ps1 -RunTests
+# clean debug build without auto-launch
+powershell -ExecutionPolicy Bypass -File .\tools\windows\build.ps1 -Config Debug -Clean -NoRun
 
-# tests only (debug preset; no game launch)
-powershell -ExecutionPolicy Bypass -File .\tools\windows\dev_build.ps1 -NoRun -RunTests
-
-# release build (build preset windows-vcpkg-release; no auto-launch)
-powershell -ExecutionPolicy Bypass -File .\tools\windows\dev_build.ps1 -Preset windows-vcpkg-release
+# release build (does not auto-launch)
+powershell -ExecutionPolicy Bypass -File .\tools\windows\build.ps1 -Config Release -NoRun
 ```
+
+`build.ps1` supports `-Config Debug|Release`, `-Clean`, `-NoRun`, and `-VcpkgRoot <path>`.
+
+Run tests through the dedicated test entry point:
+
+```powershell
+# debug tests
+powershell -ExecutionPolicy Bypass -File .\tools\windows\test.ps1
+
+# release tests
+powershell -ExecutionPolicy Bypass -File .\tools\windows\test.ps1 -Config Release
+
+# reuse an existing configure and filter tests
+powershell -ExecutionPolicy Bypass -File .\tools\windows\test.ps1 -SkipConfigure -TestFilter GameState
+```
+
+`test.ps1` supports `-Config Debug|Release`, `-Clean`, `-SkipConfigure`, `-TestFilter <regex>`, and `-VcpkgRoot <path>`. It builds `arkanoid_tests` before running CTest and fails if no tests are discovered or matched.
 
 ## Static Analysis
 
@@ -93,21 +107,44 @@ ctest --preset windows-vcpkg-debug-analyze
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\tools\windows\analyze.ps1
 powershell -ExecutionPolicy Bypass -File .\tools\windows\analyze.ps1 -Clean
+powershell -ExecutionPolicy Bypass -File .\tools\windows\analyze.ps1 -SkipConfigure
 ```
+
+`analyze.ps1` supports `-Clean`, `-SkipConfigure`, and `-VcpkgRoot <path>`. It fails if the analyze CTest lane discovers or runs zero tests.
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
+
+## Release
+
+Run the Windows release gate:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\windows\release.ps1
+```
+
+`release.ps1` supports `-VcpkgRoot <path>` and `-Clean`. It validates, tests, smokes, packages, and writes release status/latest JSON. See [Release Gate](doc/release_gate.md) for the full gate breakdown.
+
+Generated outputs are kept under `out/`:
+
+- `out/build-win-vcpkg`
+- `out/build-win-vcpkg-analyze`
+- `out/dist/install`
+- `out/dist/arkanoid-win64.zip`
+- `out/dist/release-status.json`
+- `out/dist/release-latest.json`
+- `out/dist/_runs/<run-id>`
 
 ## Open in Visual Studio
 
 1. Install Visual Studio with the **Desktop development with C++** workload.
 2. Ensure `VCPKG_ROOT` is set to your vcpkg installation path.
 3. Open the repository root folder in Visual Studio (`File > Open > Folder`).
-4. Select configure preset `windows-vcpkg`.
-5. Build in `Debug` or `Release` (corresponds to build presets `windows-vcpkg-debug` and `windows-vcpkg-release`).
-6. If prompted about a toolchain/cache mismatch, click **Delete and regenerate cache**.
-7. Build and run target `arkanoid`.
+4. Select configure preset `windows-vcpkg` for x64 vcpkg builds.
+5. Build in `Debug` or `Release` using build presets `windows-vcpkg-debug` and `windows-vcpkg-release`; tests use `windows-vcpkg-release-tests` for the Release test target.
+6. Build directories are `out/build-win-vcpkg` and `out/build-win-vcpkg-analyze`.
+7. If prompted about a toolchain/cache/platform mismatch, click **Delete and regenerate cache** or rerun the relevant script with `-Clean`.
+8. Build and run target `arkanoid`.
 
 ## License
 

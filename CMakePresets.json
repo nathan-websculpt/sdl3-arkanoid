@@ -1,8 +1,8 @@
 {
   "version": 6,
   "cmakeMinimumRequired": {
-    "major": 3,
-    "minor": 21,
+    "major": 4,
+    "minor": 2,
     "patch": 0
   },
   "configurePresets": [
@@ -10,9 +10,10 @@
       "name": "windows-vcpkg",
       "displayName": "Windows vcpkg (VS18 2026, x64-windows)",
       "generator": "Visual Studio 18 2026",
-      "binaryDir": "${sourceDir}/build-win-vcpkg",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/out/build-win-vcpkg",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
         "VCPKG_TARGET_TRIPLET": "x64-windows",
         "VCPKG_MANIFEST_MODE": "ON"
       }
@@ -20,7 +21,7 @@
     {
       "name": "windows-vcpkg-analyze",
       "inherits": "windows-vcpkg",
-      "binaryDir": "${sourceDir}/build-win-vcpkg-analyze",
+      "binaryDir": "${sourceDir}/out/build-win-vcpkg-analyze",
       "cacheVariables": {
         "ARKANOID_ENABLE_MSVC_ANALYZE": "ON"
       }
