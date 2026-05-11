@@ -100,6 +100,14 @@ Run tests through the dedicated test entry point:
 
 `test.ps1` supports `-Config Debug|Release`, `-Clean`, `-SkipConfigure`, `-TestFilter <regex>`, and `-VcpkgRoot <path>`. It builds `arkanoid_tests` before running CTest and fails if no tests are discovered or matched.
 
+Format C/C++ source and header-like files:
+
+```powershell
+.\tools\windows\format.ps1
+```
+
+`format.ps1` runs `clang-format -i` only on `.cpp`, `.hpp`, `.h`, `.cc`, `.cxx`, `.hh`, `.hxx`, and `.ixx` files. It excludes non-source files, `.git`, generated/output directories, `third_party`, and `external`.
+
 ## Static Analysis
 
 One-line
