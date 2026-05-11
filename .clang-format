@@ -17,6 +17,8 @@ PointerAlignment: Left
 SortIncludes: true
 IncludeBlocks: Regroup
 
+ReferenceAlignment: Pointer
+
 IncludeCategories:
   - Regex: '^<core/.*>$'
     Priority: 2
