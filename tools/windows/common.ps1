@@ -701,10 +701,10 @@ function Assert-CachedBuildDirectoryMatches(
     }
 }
 
-function Assert-BuildDirectoryConfigured([string]$BuildDir) {
+function Assert-SkipConfigureCacheExists([string]$BuildDir, [string]$PresetName, [string]$ScriptName = "script") {
     $cachePath = Join-Path $BuildDir "CMakeCache.txt"
     if (-not (Test-Path -LiteralPath $cachePath -PathType Leaf)) {
-        Stop-ToolScript "Build directory is not configured: $BuildDir. Run without -SkipConfigure first."
+        Stop-ToolScript "$ScriptName was run with -SkipConfigure, but no CMake cache exists at '$cachePath'. Run without -SkipConfigure first to configure preset '$PresetName'."
     }
 }
 

@@ -70,7 +70,7 @@ try {
 
     $diagnostics = @()
     if ($SkipConfigure) {
-        Assert-BuildDirectoryConfigured -BuildDir $analyzeBuildDir
+        Assert-SkipConfigureCacheExists -BuildDir $analyzeBuildDir -PresetName "windows-vcpkg-analyze" -ScriptName "analyze.ps1"
         Write-Host "Skipping configure because -SkipConfigure was specified."
     } else {
         $configureResult = Invoke-CapturedNativeCommand -Command "cmake" -Arguments @("--preset", "windows-vcpkg-analyze")

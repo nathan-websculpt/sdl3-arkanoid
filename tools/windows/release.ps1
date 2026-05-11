@@ -1,6 +1,8 @@
 param(
     [switch]$Clean,
 
+    [string]$BuildIdentity,
+
     [string]$VcpkgRoot
 )
 
@@ -54,6 +56,7 @@ function Write-ReleaseStatus([string]$GateStatus, [string]$Message) {
     $statusObject = [ordered]@{
         status = $GateStatus
         runId = $script:Manifest.runId
+        buildIdentity = $script:Manifest.buildIdentity
         message = $Message
         startedAtUtc = $script:Manifest.startedAtUtc
         completedAtUtc = $script:Manifest.completedAtUtc
@@ -290,6 +293,11 @@ try {
 
     $resolvedVcpkgRoot = Resolve-VcpkgRoot -RequestedRoot $VcpkgRoot -WriteStatus -PassThru
     $toolchainFile = Get-VcpkgToolchainFile -VcpkgRoot $resolvedVcpkgRoot
+    $normalizedBuildIdentity = $null
+    if (-not [string]::IsNullOrWhiteSpace($BuildIdentity)) {
+        $normalizedBuildIdentity = $BuildIdentity.Trim()
+    }
+
     Assert-RequiredRepoFiles -RepoRoot $repoRoot -RelativePaths @(
         "CMakeLists.txt",
         "CMakePresets.json",
@@ -304,7 +312,11 @@ try {
 
     Set-Location -LiteralPath $repoRoot
     $buildDir = Get-ConfiguredBuildDirectory -RepoRoot $repoRoot -ConfigurePresetName "windows-vcpkg"
-    Assert-CachedBuildDirectoryMatches -BuildDir $buildDir -ToolchainFile $toolchainFile
+    if ($Clean) {
+        Remove-KnownDirectory -Path $buildDir -AllowedRoot $repoRoot -Label "release build"
+    } else {
+        Assert-CachedBuildDirectoryMatches -BuildDir $buildDir -ToolchainFile $toolchainFile
+    }
 
     New-Item -ItemType Directory -Force -Path $distRoot | Out-Null
     if ($Clean) {
@@ -341,6 +353,7 @@ try {
         startedAtUtc = Get-UtcText $startedAt
         completedAtUtc = $null
         commitHash = $commitHash
+        buildIdentity = $normalizedBuildIdentity
         repoRoot = $repoRoot
         runRoot = $runRoot
         generator = "Visual Studio 18 2026"
@@ -459,6 +472,7 @@ try {
         runId = $runId
         completedAtUtc = Get-UtcText (Get-Date)
         commitHash = $commitHash
+        buildIdentity = $normalizedBuildIdentity
         installPath = $canonicalInstallDir
         zipPath = $canonicalZipPath
         zipSha256 = Get-FileSha256 -Path $canonicalZipPath

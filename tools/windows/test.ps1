@@ -53,7 +53,7 @@ try {
     }
 
     if ($SkipConfigure) {
-        Assert-BuildDirectoryConfigured -BuildDir $buildDir
+        Assert-SkipConfigureCacheExists -BuildDir $buildDir -PresetName "windows-vcpkg" -ScriptName "test.ps1"
         Write-Host "Skipping configure because -SkipConfigure was specified."
     } else {
         Invoke-NativeCommand -Command "cmake" -Arguments @("--preset", "windows-vcpkg")

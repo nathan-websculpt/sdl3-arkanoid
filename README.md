@@ -104,7 +104,7 @@ Run tests through the dedicated test entry point:
 .\tools\windows\test.ps1 -SkipConfigure -TestFilter GameState
 ```
 
-`test.ps1` supports `-Config Debug|Release`, `-Clean`, `-SkipConfigure`, `-TestFilter <regex>`, and `-VcpkgRoot <path>`. It builds `arkanoid_tests` before running CTest and fails if no tests are discovered or matched.
+`test.ps1` supports `-Config Debug|Release`, `-Clean`, `-SkipConfigure`, `-TestFilter <regex>`, and `-VcpkgRoot <path>`. It builds `arkanoid_tests` before running CTest and fails if no tests are discovered or matched. `-SkipConfigure` requires an existing `out/build-win-vcpkg/CMakeCache.txt`; it cannot be combined with `-Clean`.
 
 Format C/C++ source and header-like files:
 
@@ -136,16 +136,25 @@ ctest --preset windows-vcpkg-debug-analyze
 .\tools\windows\analyze.ps1 -SkipConfigure
 ```
 
-`analyze.ps1` supports `-Clean`, `-SkipConfigure`, and `-VcpkgRoot <path>`. It fails if the analyze CTest lane discovers or runs zero tests.
+`analyze.ps1` supports `-Clean`, `-SkipConfigure`, and `-VcpkgRoot <path>`. It fails if the analyze CTest lane discovers or runs zero tests. `-SkipConfigure` requires an existing `out/build-win-vcpkg-analyze/CMakeCache.txt`; it cannot be combined with `-Clean`.
 
 ## Release
 
 Run the Windows release gate:
 ```powershell
 .\tools\windows\release.ps1
+
+# clean release build and package outputs first
+.\tools\windows\release.ps1 -Clean
+
+# record a caller-provided identity in release JSON metadata
+.\tools\windows\release.ps1 -BuildIdentity "ci-20260511.1"
+
+# release with an explicit vcpkg root
+.\tools\windows\release.ps1 -VcpkgRoot "C:\path\to\vcpkg"
 ```
 
-`release.ps1` supports `-VcpkgRoot <path>` and `-Clean`. It validates, tests, smokes, packages, and writes release status/latest JSON. See [Release Gate](doc/release_gate.md) for the full gate breakdown.
+`release.ps1` supports `-Clean`, `-BuildIdentity <text>`, and `-VcpkgRoot <path>`. It validates, tests, smokes, packages, and writes release status/latest JSON. `-Clean` removes the Release CMake output under `out/build-win-vcpkg` plus release-controlled outputs under `out/dist` before starting a fresh run. `-BuildIdentity` is recorded as `buildIdentity` in release metadata without changing the generated run ID or artifact paths. See [Release Gate](doc/release_gate.md) for the full gate breakdown.
 
 Generated outputs are kept under `out/`:
 
