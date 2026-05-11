@@ -6,10 +6,6 @@ $repoRoot = Resolve-RepoRoot -WindowsToolsRoot $PSScriptRoot
 $callerState = Save-CallerState
 $exitCode = 0
 
-function Fail([string]$Message) {
-    throw $Message
-}
-
 function Get-RepoRelativePath([string]$Path, [string]$Root) {
     $rootFullPath = [System.IO.Path]::GetFullPath($Root).TrimEnd([char[]]@('\', '/'))
     $pathFullPath = [System.IO.Path]::GetFullPath($Path)
