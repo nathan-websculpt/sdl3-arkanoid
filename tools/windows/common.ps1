@@ -574,6 +574,11 @@ function Assert-TestPresetContract(
     if ($preset.configurePreset -ne $ConfigurePreset -or $preset.configuration -ne $Configuration) {
         Stop-ToolScript "CMake test preset '$Name' must test $Configuration from $ConfigurePreset."
     }
+
+    $execution = Get-ObjectPropertyValue -Object $preset -Name "execution"
+    if ((Get-ObjectPropertyValue -Object $execution -Name "noTestsAction") -ne "error") {
+        Stop-ToolScript "CMake test preset '$Name' must fail when no tests are discovered."
+    }
 }
 
 function Assert-ArkanoidPresetContract([string]$RepoRoot, [string]$VcpkgRoot) {
@@ -587,6 +592,12 @@ function Assert-ArkanoidPresetContract([string]$RepoRoot, [string]$VcpkgRoot) {
     }
     if ($windowsPreset.architecture -ne "x64") {
         Stop-ToolScript "CMake preset 'windows-vcpkg' must set architecture to x64."
+    }
+    $windowsCondition = Get-ObjectPropertyValue -Object $windowsPreset -Name "condition"
+    if ((Get-ObjectPropertyValue -Object $windowsCondition -Name "type") -ne "equals" -or
+        (Get-ObjectPropertyValue -Object $windowsCondition -Name "lhs") -ne '${hostSystemName}' -or
+        (Get-ObjectPropertyValue -Object $windowsCondition -Name "rhs") -ne "Windows") {
+        Stop-ToolScript "CMake preset 'windows-vcpkg' must be gated to Windows hosts."
     }
 
     $windowsBuildDir = Resolve-PresetBinaryDirectory -RepoRoot $RepoRoot -Presets $presets -ConfigurePresetName "windows-vcpkg"
