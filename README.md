@@ -74,16 +74,22 @@ $env:VCPKG_ROOT = "C:\path\to\vcpkg"
 .\tools\windows\build.ps1
 
 # debug build without auto-launch
-.\tools\windows\build.ps1 -NoRun
-
-# clean debug build without auto-launch
-.\tools\windows\build.ps1 -Config Debug -Clean -NoRun
+.\tools\windows\build.ps1 -Config Debug -NoRun
 
 # release build (does not auto-launch)
-.\tools\windows\build.ps1 -Config Release -NoRun
+.\tools\windows\build.ps1 -Config Release
+
+# clean debug build without auto-launch
+.\tools\windows\build.ps1 -Clean -Config Debug -NoRun
+
+# reuse an existing configure
+.\tools\windows\build.ps1 -SkipConfigure -Config Debug -NoRun
+
+# build with an explicit vcpkg root
+.\tools\windows\build.ps1 -VcpkgRoot "C:\path\to\vcpkg" -Config Release
 ```
 
-`build.ps1` supports `-Config Debug|Release`, `-Clean`, `-NoRun`, and `-VcpkgRoot <path>`.
+`build.ps1` supports `-Config Debug|Release`, `-Clean`, `-SkipConfigure`, `-NoRun`, and `-VcpkgRoot <path>`. Debug auto-launches by default after a successful build, Release is build-only by default, and `-NoRun` suppresses Debug launch. `-Clean` removes the generated CMake build output under `out/build-win-vcpkg` before configure/build. `-SkipConfigure` builds from the existing CMake cache; it cannot be combined with `-Clean`.
 
 Run tests through the dedicated test entry point:
 

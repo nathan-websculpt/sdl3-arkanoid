@@ -4,6 +4,8 @@ param(
 
     [switch]$Clean,
 
+    [switch]$SkipConfigure,
+
     [switch]$NoRun,
 
     [string]$VcpkgRoot
@@ -53,6 +55,10 @@ try {
     )
     Assert-ArkanoidPresetContract -RepoRoot $repoRoot -VcpkgRoot $resolvedVcpkgRoot | Out-Null
 
+    if ($Clean -and $SkipConfigure) {
+        Fail "-Clean cannot be combined with -SkipConfigure because the build directory is removed before configure."
+    }
+
     Set-Location -LiteralPath $repoRoot
 
     $buildDir = Get-ConfiguredBuildDirectory -RepoRoot $repoRoot -ConfigurePresetName "windows-vcpkg"
@@ -62,7 +68,12 @@ try {
         Assert-CachedBuildDirectoryMatches -BuildDir $buildDir -ToolchainFile $toolchainFile
     }
 
-    Invoke-NativeCommand -Command "cmake" -Arguments @("--preset", "windows-vcpkg")
+    if ($SkipConfigure) {
+        Assert-BuildDirectoryConfigured -BuildDir $buildDir
+        Write-Host "Skipping configure because -SkipConfigure was specified."
+    } else {
+        Invoke-NativeCommand -Command "cmake" -Arguments @("--preset", "windows-vcpkg")
+    }
 
     $buildPreset = if ($Config -eq "Release") { "windows-vcpkg-release" } else { "windows-vcpkg-debug" }
     Invoke-NativeCommand -Command "cmake" -Arguments @(
