@@ -75,7 +75,7 @@ try {
         Invoke-NativeCommand -Command "cmake" -Arguments @("--preset", "windows-vcpkg")
     }
 
-    $buildPreset = if ($Config -eq "Release") { "windows-vcpkg-release" } else { "windows-vcpkg-debug" }
+    $buildPreset = if ($Config -eq "Release") { "windows-release" } else { "windows-debug" }
     Invoke-NativeCommand -Command "cmake" -Arguments @(
         "--build", "--preset", $buildPreset,
         "--target", "arkanoid"

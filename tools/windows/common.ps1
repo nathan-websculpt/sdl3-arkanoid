@@ -632,14 +632,14 @@ function Assert-ArkanoidPresetContract([string]$RepoRoot, [string]$VcpkgRoot) {
         Stop-ToolScript "CMake preset 'windows-vcpkg-analyze' must use build directory '$expectedAnalyzeBuildDir'."
     }
 
-    Assert-BuildPresetContract -Presets $presets -Name "windows-vcpkg-debug" -ConfigurePreset "windows-vcpkg" -Configuration "Debug"
-    Assert-BuildPresetContract -Presets $presets -Name "windows-vcpkg-release" -ConfigurePreset "windows-vcpkg" -Configuration "Release" -RequiredTarget "arkanoid"
-    Assert-BuildPresetContract -Presets $presets -Name "windows-vcpkg-release-tests" -ConfigurePreset "windows-vcpkg" -Configuration "Release" -RequiredTarget "arkanoid_tests"
-    Assert-BuildPresetContract -Presets $presets -Name "windows-vcpkg-debug-analyze" -ConfigurePreset "windows-vcpkg-analyze" -Configuration "Debug"
+    Assert-BuildPresetContract -Presets $presets -Name "windows-debug" -ConfigurePreset "windows-vcpkg" -Configuration "Debug"
+    Assert-BuildPresetContract -Presets $presets -Name "windows-release" -ConfigurePreset "windows-vcpkg" -Configuration "Release" -RequiredTarget "arkanoid"
+    Assert-BuildPresetContract -Presets $presets -Name "windows-release-tests" -ConfigurePreset "windows-vcpkg" -Configuration "Release" -RequiredTarget "arkanoid_tests"
+    Assert-BuildPresetContract -Presets $presets -Name "windows-debug-analyze" -ConfigurePreset "windows-vcpkg-analyze" -Configuration "Debug"
 
-    Assert-TestPresetContract -Presets $presets -Name "windows-vcpkg-debug" -ConfigurePreset "windows-vcpkg" -Configuration "Debug"
-    Assert-TestPresetContract -Presets $presets -Name "windows-vcpkg-release" -ConfigurePreset "windows-vcpkg" -Configuration "Release"
-    Assert-TestPresetContract -Presets $presets -Name "windows-vcpkg-debug-analyze" -ConfigurePreset "windows-vcpkg-analyze" -Configuration "Debug"
+    Assert-TestPresetContract -Presets $presets -Name "windows-debug-tests" -ConfigurePreset "windows-vcpkg" -Configuration "Debug"
+    Assert-TestPresetContract -Presets $presets -Name "windows-release-tests" -ConfigurePreset "windows-vcpkg" -Configuration "Release"
+    Assert-TestPresetContract -Presets $presets -Name "windows-debug-analyze" -ConfigurePreset "windows-vcpkg-analyze" -Configuration "Debug"
 
     $resolvedVcpkgRoot = Resolve-Path -LiteralPath $VcpkgRoot
     $expectedToolchain = Get-VcpkgToolchainFile -VcpkgRoot $resolvedVcpkgRoot.Path

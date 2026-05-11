@@ -124,8 +124,8 @@ One-line
 Or
 ```powershell
 cmake --preset windows-vcpkg-analyze
-cmake --build --preset windows-vcpkg-debug-analyze
-ctest --preset windows-vcpkg-debug-analyze
+cmake --build --preset windows-debug-analyze
+ctest --preset windows-debug-analyze
 ```
 
 `analyze.ps1` runs configure + build + ctest on the analyze presets.
@@ -172,7 +172,7 @@ Generated outputs are kept under `out/`:
 2. Ensure `VCPKG_ROOT` is set to your vcpkg installation path.
 3. Open the repository root folder in Visual Studio (`File > Open > Folder`).
 4. Select configure preset `windows-vcpkg` for x64 vcpkg builds.
-5. Build in `Debug` or `Release` using build presets `windows-vcpkg-debug` and `windows-vcpkg-release`; tests use `windows-vcpkg-release-tests` for the Release test target.
+5. Build in `Debug` or `Release` using build presets `windows-debug` and `windows-release`; tests use `windows-debug-tests` and `windows-release-tests`.
 6. Build directories are `out/build-win-vcpkg` and `out/build-win-vcpkg-analyze`.
 7. If prompted about a toolchain/cache/platform mismatch, click **Delete and regenerate cache** or rerun the relevant script with `-Clean`.
 8. Build and run target `arkanoid`.

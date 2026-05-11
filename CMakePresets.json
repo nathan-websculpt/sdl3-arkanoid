@@ -34,12 +34,12 @@
   ],
   "buildPresets": [
     {
-      "name": "windows-vcpkg-debug",
+      "name": "windows-debug",
       "configurePreset": "windows-vcpkg",
       "configuration": "Debug"
     },
     {
-      "name": "windows-vcpkg-release",
+      "name": "windows-release",
       "configurePreset": "windows-vcpkg",
       "configuration": "Release",
       "targets": [
@@ -47,7 +47,7 @@
       ]
     },
     {
-      "name": "windows-vcpkg-release-tests",
+      "name": "windows-release-tests",
       "configurePreset": "windows-vcpkg",
       "configuration": "Release",
       "targets": [
@@ -55,14 +55,14 @@
       ]
     },
     {
-      "name": "windows-vcpkg-debug-analyze",
+      "name": "windows-debug-analyze",
       "configurePreset": "windows-vcpkg-analyze",
       "configuration": "Debug"
     }
   ],
   "testPresets": [
     {
-      "name": "windows-vcpkg-debug",
+      "name": "windows-debug-tests",
       "configurePreset": "windows-vcpkg",
       "configuration": "Debug",
       "output": {
@@ -73,7 +73,7 @@
       }
     },
     {
-      "name": "windows-vcpkg-release",
+      "name": "windows-release-tests",
       "configurePreset": "windows-vcpkg",
       "configuration": "Release",
       "output": {
@@ -84,7 +84,7 @@
       }
     },
     {
-      "name": "windows-vcpkg-debug-analyze",
+      "name": "windows-debug-analyze",
       "configurePreset": "windows-vcpkg-analyze",
       "configuration": "Debug",
       "output": {

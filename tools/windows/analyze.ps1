@@ -82,7 +82,7 @@ try {
 
     foreach ($target in @("arkanoid", "arkanoid_tests")) {
         $buildResult = Invoke-CapturedNativeCommand -Command "cmake" -Arguments @(
-            "--build", "--preset", "windows-vcpkg-debug-analyze",
+            "--build", "--preset", "windows-debug-analyze",
             "--target", $target
         )
         $targetDiagnostics = @(Get-DiagnosticLines -Lines $buildResult.Lines)
@@ -94,7 +94,7 @@ try {
     }
 
     Invoke-NativeCommand -Command "ctest" -Arguments @(
-        "--preset", "windows-vcpkg-debug-analyze",
+        "--preset", "windows-debug-analyze",
         "--output-on-failure",
         "--no-tests=error"
     )

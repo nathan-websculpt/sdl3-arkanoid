@@ -386,17 +386,17 @@ try {
 
     Invoke-GateCommand -Name "configure" -Command "cmake" -Arguments @("--preset", "windows-vcpkg") | Out-Null
     Invoke-GateCommand -Name "release-build" -Command "cmake" -Arguments @(
-        "--build", "--preset", "windows-vcpkg-release",
+        "--build", "--preset", "windows-release",
         "--target", "arkanoid",
         "--parallel"
     ) | Out-Null
     Invoke-GateCommand -Name "release-tests-build" -Command "cmake" -Arguments @(
-        "--build", "--preset", "windows-vcpkg-release-tests",
+        "--build", "--preset", "windows-release-tests",
         "--target", "arkanoid_tests",
         "--parallel"
     ) | Out-Null
     Invoke-GateCommand -Name "release-tests" -Command "ctest" -Arguments @(
-        "--preset", "windows-vcpkg-release",
+        "--preset", "windows-release-tests",
         "--output-on-failure",
         "--no-tests=error"
     ) | Out-Null
