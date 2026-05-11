@@ -26,12 +26,16 @@ function Test-IsExcludedRepoFile([string]$Path, [string]$Root) {
     }
 
     $excludedSegments = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
-    foreach ($segment in @(".git", ".vs", "build", "generated", "out", "third_party", "external")) {
+    foreach ($segment in @(".git", ".vs", "generated", "out", "third_party", "external")) {
         [void]$excludedSegments.Add($segment)
     }
 
     foreach ($segment in $segments[0..($segments.Count - 2)]) {
         if ($excludedSegments.Contains($segment)) {
+            return $true
+        }
+
+        if ($segment.StartsWith("build", [System.StringComparison]::OrdinalIgnoreCase)) {
             return $true
         }
 
