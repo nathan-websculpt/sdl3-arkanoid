@@ -46,58 +46,41 @@ try {
     $toolchainFile = Get-VcpkgToolchainFile -VcpkgRoot $resolvedVcpkgRoot
 
     Require-Command -Name "cmake" -CommandType Application | Out-Null
-    Require-Command -Name "ctest" -CommandType Application | Out-Null
     Assert-RequiredRepoFiles -RepoRoot $repoRoot -RelativePaths @(
         "CMakeLists.txt",
         "CMakePresets.json",
-        "vcpkg.json",
-        "tests/CMakeLists.txt"
+        "vcpkg.json"
     )
     Assert-ArkanoidPresetContract -RepoRoot $repoRoot -VcpkgRoot $resolvedVcpkgRoot | Out-Null
 
-    if ($Clean -and $SkipConfigure) {
-        Fail "-Clean cannot be combined with -SkipConfigure because the analyze build directory is removed before configure."
-    }
+    Assert-CleanSkipConfigureCompatible -Clean:$Clean -SkipConfigure:$SkipConfigure -Label "analyze build directory"
 
     Set-Location -LiteralPath $repoRoot
 
-    $analyzeBuildDir = Get-ConfiguredBuildDirectory -RepoRoot $repoRoot -ConfigurePresetName "windows-vcpkg-analyze"
+    $analyzeBuildDir = Get-WindowsAnalyzeBuildDir -RepoRoot $repoRoot
     if ($Clean) {
-        Remove-KnownDirectory -Path $analyzeBuildDir -AllowedRoot $repoRoot -Label "analyze build"
+        Clear-KnownBuildDirectory -BuildDir $analyzeBuildDir -RepoRoot $repoRoot -Label "analyze build"
     } else {
         Assert-CachedBuildDirectoryMatches -BuildDir $analyzeBuildDir -ToolchainFile $toolchainFile
     }
 
-    $diagnostics = @()
     if ($SkipConfigure) {
         Assert-SkipConfigureCacheExists -BuildDir $analyzeBuildDir -PresetName "windows-vcpkg-analyze" -ScriptName "analyze.ps1"
-        Write-Host "Skipping configure because -SkipConfigure was specified."
+        Invoke-CMakeConfigureUnlessSkipped -SkipConfigure:$SkipConfigure -Preset "windows-vcpkg-analyze" -CaptureOutput | Out-Null
     } else {
-        $configureResult = Invoke-CapturedNativeCommand -Command "cmake" -Arguments @("--preset", "windows-vcpkg-analyze")
+        $configureResult = Invoke-CMakeConfigureUnlessSkipped -SkipConfigure:$SkipConfigure -Preset "windows-vcpkg-analyze" -CaptureOutput
         if ($configureResult.ExitCode -ne 0) {
             Write-AnalyzeSummary -Message "Configure failed." -Diagnostics @()
             Fail "Configure failed with exit code $($configureResult.ExitCode)."
         }
     }
 
-    foreach ($target in @("arkanoid", "arkanoid_tests")) {
-        $buildResult = Invoke-CapturedNativeCommand -Command "cmake" -Arguments @(
-            "--build", "--preset", "windows-debug-analyze",
-            "--target", $target
-        )
-        $targetDiagnostics = @(Get-DiagnosticLines -Lines $buildResult.Lines)
-        $diagnostics += $targetDiagnostics
-        if ($buildResult.ExitCode -ne 0) {
-            Write-AnalyzeSummary -Message "Build failed for target '$target'." -Diagnostics $diagnostics
-            Fail "Analyze build failed with exit code $($buildResult.ExitCode)."
-        }
+    $buildResult = Invoke-CMakeBuildPreset -Preset "windows-debug-analyze" -Target "arkanoid" -CaptureOutput
+    $diagnostics = @(Get-DiagnosticLines -Lines $buildResult.Lines)
+    if ($buildResult.ExitCode -ne 0) {
+        Write-AnalyzeSummary -Message "Build failed." -Diagnostics $diagnostics
+        Fail "Analyze build failed with exit code $($buildResult.ExitCode)."
     }
-
-    Invoke-NativeCommand -Command "ctest" -Arguments @(
-        "--preset", "windows-debug-analyze",
-        "--output-on-failure",
-        "--no-tests=error"
-    )
 
     if ($diagnostics.Count -gt 0) {
         Write-AnalyzeSummary -Message "Analyze completed, but warnings or static-analysis diagnostics were found. Review the output above." -Diagnostics $diagnostics

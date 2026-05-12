@@ -11,6 +11,22 @@ function Resolve-RepoRoot([string]$WindowsToolsRoot) {
     return (Resolve-Path -LiteralPath (Join-Path $WindowsToolsRoot "../..")).Path
 }
 
+function Get-GeneratedOutputRoot([string]$RepoRoot) {
+    return Join-Path $RepoRoot "out"
+}
+
+function Get-WindowsBuildDir([string]$RepoRoot) {
+    return Get-ConfiguredBuildDirectory -RepoRoot $RepoRoot -ConfigurePresetName "windows-vcpkg"
+}
+
+function Get-WindowsAnalyzeBuildDir([string]$RepoRoot) {
+    return Get-ConfiguredBuildDirectory -RepoRoot $RepoRoot -ConfigurePresetName "windows-vcpkg-analyze"
+}
+
+function Get-WindowsDistRoot([string]$RepoRoot) {
+    return Join-Path (Get-GeneratedOutputRoot -RepoRoot $RepoRoot) "dist"
+}
+
 function Save-CallerState {
     return [pscustomobject]@{
         PreviousLocation = (Get-Location).ProviderPath
@@ -575,6 +591,11 @@ function Assert-TestPresetContract(
         Stop-ToolScript "CMake test preset '$Name' must test $Configuration from $ConfigurePreset."
     }
 
+    $output = Get-ObjectPropertyValue -Object $preset -Name "output"
+    if ((Get-ObjectPropertyValue -Object $output -Name "outputOnFailure") -ne $true) {
+        Stop-ToolScript "CMake test preset '$Name' must enable outputOnFailure."
+    }
+
     $execution = Get-ObjectPropertyValue -Object $preset -Name "execution"
     if ((Get-ObjectPropertyValue -Object $execution -Name "noTestsAction") -ne "error") {
         Stop-ToolScript "CMake test preset '$Name' must fail when no tests are discovered."
@@ -601,7 +622,7 @@ function Assert-ArkanoidPresetContract([string]$RepoRoot, [string]$VcpkgRoot) {
     }
 
     $windowsBuildDir = Resolve-PresetBinaryDirectory -RepoRoot $RepoRoot -Presets $presets -ConfigurePresetName "windows-vcpkg"
-    $expectedWindowsBuildDir = Join-Path (Join-Path $RepoRoot "out") "build-win-vcpkg"
+    $expectedWindowsBuildDir = Join-Path (Get-GeneratedOutputRoot -RepoRoot $RepoRoot) "build-win-vcpkg"
     if (-not (Test-PathEquals -Left $windowsBuildDir -Right $expectedWindowsBuildDir)) {
         Stop-ToolScript "CMake preset 'windows-vcpkg' must use build directory '$expectedWindowsBuildDir'."
     }
@@ -627,20 +648,17 @@ function Assert-ArkanoidPresetContract([string]$RepoRoot, [string]$VcpkgRoot) {
         Stop-ToolScript "CMake configure preset 'windows-vcpkg-analyze' must inherit windows-vcpkg."
     }
     $analyzeBuildDir = Resolve-PresetBinaryDirectory -RepoRoot $RepoRoot -Presets $presets -ConfigurePresetName "windows-vcpkg-analyze"
-    $expectedAnalyzeBuildDir = Join-Path (Join-Path $RepoRoot "out") "build-win-vcpkg-analyze"
+    $expectedAnalyzeBuildDir = Join-Path (Get-GeneratedOutputRoot -RepoRoot $RepoRoot) "build-win-vcpkg-analyze"
     if (-not (Test-PathEquals -Left $analyzeBuildDir -Right $expectedAnalyzeBuildDir)) {
         Stop-ToolScript "CMake preset 'windows-vcpkg-analyze' must use build directory '$expectedAnalyzeBuildDir'."
     }
 
     Assert-BuildPresetContract -Presets $presets -Name "windows-debug" -ConfigurePreset "windows-vcpkg" -Configuration "Debug"
-    Assert-BuildPresetContract -Presets $presets -Name "windows-release" -ConfigurePreset "windows-vcpkg" -Configuration "Release" -RequiredTarget "arkanoid"
-    Assert-BuildPresetContract -Presets $presets -Name "windows-release-tests" -ConfigurePreset "windows-vcpkg" -Configuration "Release" -RequiredTarget "arkanoid_tests"
+    Assert-BuildPresetContract -Presets $presets -Name "windows-release" -ConfigurePreset "windows-vcpkg" -Configuration "Release"
     Assert-BuildPresetContract -Presets $presets -Name "windows-debug-analyze" -ConfigurePreset "windows-vcpkg-analyze" -Configuration "Debug"
 
     Assert-TestPresetContract -Presets $presets -Name "windows-debug-tests" -ConfigurePreset "windows-vcpkg" -Configuration "Debug"
     Assert-TestPresetContract -Presets $presets -Name "windows-release-tests" -ConfigurePreset "windows-vcpkg" -Configuration "Release"
-    Assert-TestPresetContract -Presets $presets -Name "windows-debug-analyze" -ConfigurePreset "windows-vcpkg-analyze" -Configuration "Debug"
-
     $resolvedVcpkgRoot = Resolve-Path -LiteralPath $VcpkgRoot
     $expectedToolchain = Get-VcpkgToolchainFile -VcpkgRoot $resolvedVcpkgRoot.Path
     if (-not (Test-Path -LiteralPath $expectedToolchain -PathType Leaf)) {
@@ -653,6 +671,17 @@ function Assert-ArkanoidPresetContract([string]$RepoRoot, [string]$VcpkgRoot) {
 function Get-ConfiguredBuildDirectory([string]$RepoRoot, [string]$ConfigurePresetName) {
     $presets = Read-CMakePresets -RepoRoot $RepoRoot
     return Resolve-PresetBinaryDirectory -RepoRoot $RepoRoot -Presets $presets -ConfigurePresetName $ConfigurePresetName
+}
+
+function Assert-CleanSkipConfigureCompatible([switch]$Clean, [switch]$SkipConfigure, [string]$Label = "build directory") {
+    if ($Clean -and $SkipConfigure) {
+        Stop-ToolScript "-Clean cannot be combined with -SkipConfigure because the $Label is removed before configure."
+    }
+}
+
+function Clear-KnownBuildDirectory([string]$BuildDir, [string]$RepoRoot, [string]$Label = "build") {
+    $outputRoot = Get-GeneratedOutputRoot -RepoRoot $RepoRoot
+    Remove-KnownDirectory -Path $BuildDir -AllowedRoot $outputRoot -Label $Label
 }
 
 function Get-CMakeCacheEntry([string]$CachePath, [string]$Name) {
@@ -682,7 +711,8 @@ function Assert-CachedBuildDirectoryMatches(
     [string]$BuildDir,
     [string]$ToolchainFile,
     [string]$ExpectedGenerator = "Visual Studio 18 2026",
-    [string]$ExpectedPlatform = "x64"
+    [string]$ExpectedPlatform = "x64",
+    [string]$ExpectedTriplet = "x64-windows"
 ) {
     $cachePath = Join-Path $BuildDir "CMakeCache.txt"
     if (-not (Test-Path -LiteralPath $cachePath -PathType Leaf)) {
@@ -710,6 +740,11 @@ function Assert-CachedBuildDirectoryMatches(
     if ($cachedPlatform -ne $ExpectedPlatform) {
         Stop-ToolScript "Existing build directory was configured with platform '$cachedPlatform', expected '$ExpectedPlatform'. Run the script again with -Clean."
     }
+
+    $cachedTriplet = Get-CMakeCacheEntry -CachePath $cachePath -Name "VCPKG_TARGET_TRIPLET"
+    if ($cachedTriplet -ne $ExpectedTriplet) {
+        Stop-ToolScript "Existing build directory was configured with triplet '$cachedTriplet', expected '$ExpectedTriplet'. Run the script again with -Clean."
+    }
 }
 
 function Assert-SkipConfigureCacheExists([string]$BuildDir, [string]$PresetName, [string]$ScriptName = "script") {
@@ -717,6 +752,45 @@ function Assert-SkipConfigureCacheExists([string]$BuildDir, [string]$PresetName,
     if (-not (Test-Path -LiteralPath $cachePath -PathType Leaf)) {
         Stop-ToolScript "$ScriptName was run with -SkipConfigure, but no CMake cache exists at '$cachePath'. Run without -SkipConfigure first to configure preset '$PresetName'."
     }
+}
+
+function Invoke-CMakeConfigureUnlessSkipped(
+    [switch]$SkipConfigure,
+    [string]$Preset,
+    [switch]$CaptureOutput
+) {
+    if ($SkipConfigure) {
+        Write-Host "Skipping configure because -SkipConfigure was specified."
+        return $null
+    }
+
+    $arguments = @("--preset", $Preset)
+    if ($CaptureOutput) {
+        return Invoke-CapturedNativeCommand -Command "cmake" -Arguments $arguments
+    }
+
+    Invoke-NativeCommand -Command "cmake" -Arguments $arguments
+}
+
+function Invoke-CMakeBuildPreset(
+    [string]$Preset,
+    [string]$Target,
+    [switch]$CaptureOutput,
+    [switch]$Parallel
+) {
+    $arguments = @("--build", "--preset", $Preset)
+    if ($Target) {
+        $arguments += @("--target", $Target)
+    }
+    if ($Parallel) {
+        $arguments += "--parallel"
+    }
+
+    if ($CaptureOutput) {
+        return Invoke-CapturedNativeCommand -Command "cmake" -Arguments $arguments
+    }
+
+    Invoke-NativeCommand -Command "cmake" -Arguments $arguments
 }
 
 function Assert-RequiredRepoFiles([string]$RepoRoot, [string[]]$RelativePaths) {

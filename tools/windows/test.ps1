@@ -39,31 +39,24 @@ try {
     )
     Assert-ArkanoidPresetContract -RepoRoot $repoRoot -VcpkgRoot $resolvedVcpkgRoot | Out-Null
 
-    if ($Clean -and $SkipConfigure) {
-        Fail "-Clean cannot be combined with -SkipConfigure because the build directory is removed before configure."
-    }
+    Assert-CleanSkipConfigureCompatible -Clean:$Clean -SkipConfigure:$SkipConfigure
 
     Set-Location -LiteralPath $repoRoot
 
-    $buildDir = Get-ConfiguredBuildDirectory -RepoRoot $repoRoot -ConfigurePresetName "windows-vcpkg"
+    $buildDir = Get-WindowsBuildDir -RepoRoot $repoRoot
     if ($Clean) {
-        Remove-KnownDirectory -Path $buildDir -AllowedRoot $repoRoot -Label "build"
+        Clear-KnownBuildDirectory -BuildDir $buildDir -RepoRoot $repoRoot -Label "build"
     } else {
         Assert-CachedBuildDirectoryMatches -BuildDir $buildDir -ToolchainFile $toolchainFile
     }
 
     if ($SkipConfigure) {
         Assert-SkipConfigureCacheExists -BuildDir $buildDir -PresetName "windows-vcpkg" -ScriptName "test.ps1"
-        Write-Host "Skipping configure because -SkipConfigure was specified."
-    } else {
-        Invoke-NativeCommand -Command "cmake" -Arguments @("--preset", "windows-vcpkg")
     }
+    Invoke-CMakeConfigureUnlessSkipped -SkipConfigure:$SkipConfigure -Preset "windows-vcpkg"
 
-    $buildPreset = if ($Config -eq "Release") { "windows-release-tests" } else { "windows-debug" }
-    Invoke-NativeCommand -Command "cmake" -Arguments @(
-        "--build", "--preset", $buildPreset,
-        "--target", "arkanoid_tests"
-    )
+    $buildPreset = if ($Config -eq "Release") { "windows-release" } else { "windows-debug" }
+    Invoke-CMakeBuildPreset -Preset $buildPreset -Target "arkanoid_tests"
 
     $testPreset = if ($Config -eq "Release") { "windows-release-tests" } else { "windows-debug-tests" }
     $ctestArguments = @(

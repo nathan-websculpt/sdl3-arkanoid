@@ -1,7 +1,7 @@
 param(
     [switch]$Clean,
 
-    [string]$BuildIdentity,
+    [string]$BuildIdentity = "local",
 
     [string]$VcpkgRoot
 )
@@ -14,7 +14,7 @@ $repoRoot = Resolve-RepoRoot -WindowsToolsRoot $PSScriptRoot
 $callerState = Save-CallerState
 $exitCode = 0
 
-$distRoot = Join-Path (Join-Path $repoRoot "out") "dist"
+$distRoot = Get-WindowsDistRoot -RepoRoot $repoRoot
 $runsDir = Join-Path $distRoot "_runs"
 $canonicalInstallDir = Join-Path $distRoot "install"
 $canonicalZipPath = Join-Path $distRoot "arkanoid-win64.zip"
@@ -311,9 +311,9 @@ try {
     Assert-ArkanoidPresetContract -RepoRoot $repoRoot -VcpkgRoot $resolvedVcpkgRoot | Out-Null
 
     Set-Location -LiteralPath $repoRoot
-    $buildDir = Get-ConfiguredBuildDirectory -RepoRoot $repoRoot -ConfigurePresetName "windows-vcpkg"
+    $buildDir = Get-WindowsBuildDir -RepoRoot $repoRoot
     if ($Clean) {
-        Remove-KnownDirectory -Path $buildDir -AllowedRoot $repoRoot -Label "release build"
+        Clear-KnownBuildDirectory -BuildDir $buildDir -RepoRoot $repoRoot -Label "release build"
     } else {
         Assert-CachedBuildDirectoryMatches -BuildDir $buildDir -ToolchainFile $toolchainFile
     }
@@ -391,7 +391,7 @@ try {
         "--parallel"
     ) | Out-Null
     Invoke-GateCommand -Name "release-tests-build" -Command "cmake" -Arguments @(
-        "--build", "--preset", "windows-release-tests",
+        "--build", "--preset", "windows-release",
         "--target", "arkanoid_tests",
         "--parallel"
     ) | Out-Null
