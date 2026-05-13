@@ -60,3 +60,16 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+---
+
+Microsoft Visual C++ Runtime Libraries
+
+This Windows release package includes Microsoft Visual C++ runtime DLLs
+installed by CMake's InstallRequiredSystemLibraries module, such as
+concrt140.dll, msvcp140.dll, msvcp140_1.dll, msvcp140_2.dll,
+vcruntime140.dll, and vcruntime140_1.dll.
+
+These runtime components are redistributed under the Microsoft Visual C++ 2015-2022 Runtime license terms:
+
+https://visualstudio.microsoft.com/license-terms/vs2022-cruntime/
