@@ -23,7 +23,7 @@ class Game final {
     void setInput(bool moveLeftHeld, bool moveRightHeld, bool serveHeld);
     void update(float dt);
 
-    const GameState& getState() const;
+    [[nodiscard]] const GameState& getState() const;
 
   private:
     friend struct test::GameTestAccess;

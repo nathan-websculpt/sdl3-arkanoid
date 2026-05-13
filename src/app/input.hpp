@@ -9,7 +9,7 @@ struct InputState {
     bool serveHeld{};
 };
 
-InputState readInputState();
+[[nodiscard]] InputState readInputState();
 
 } // namespace arkanoid::app
 

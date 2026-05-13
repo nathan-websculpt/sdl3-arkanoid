@@ -50,6 +50,7 @@ int runApplication(RunMode runMode) {
     }
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
+        SDL_Log("Failed to initialize SDL video: %s", SDL_GetError());
         return 1;
     }
 
@@ -61,12 +62,14 @@ int runApplication(RunMode runMode) {
         SDL_CreateWindow("Arkanoid Demo", kWindowWidth, kWindowHeight, windowFlags),
         SDL_DestroyWindow);
     if (!window) {
+        SDL_Log("Failed to create SDL window: %s", SDL_GetError());
         return 1;
     }
 
     std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> renderer(
         SDL_CreateRenderer(window.get(), nullptr), SDL_DestroyRenderer);
     if (!renderer) {
+        SDL_Log("Failed to create SDL renderer: %s", SDL_GetError());
         return 1;
     }
     if (!SDL_SetRenderVSync(renderer.get(), 1)) {
@@ -76,11 +79,17 @@ int runApplication(RunMode runMode) {
 
     arkanoid::Game game;
     if (releaseStartupSmoke) {
-        return arkanoid::render::renderFrame(renderer.get(), game.getState()) ? 0 : 1;
+        if (!arkanoid::render::renderFrame(renderer.get(), game.getState())) {
+            SDL_Log("Release startup smoke render failed: %s", SDL_GetError());
+            return 1;
+        }
+
+        return 0;
     }
 
     std::optional<FixedStepTimer> timer = FixedStepTimer::create();
     if (!timer.has_value()) {
+        SDL_Log("Failed to initialize fixed-step timer: SDL performance frequency was zero");
         return 1;
     }
 
@@ -103,6 +112,7 @@ int runApplication(RunMode runMode) {
         }
 
         if (!arkanoid::render::renderFrame(renderer.get(), game.getState())) {
+            SDL_Log("Failed to render frame: %s", SDL_GetError());
             return 1;
         }
     }

@@ -5,7 +5,7 @@
 
 namespace arkanoid::app {
 
-int runApplication(RunMode runMode);
+[[nodiscard]] int runApplication(RunMode runMode);
 
 } // namespace arkanoid::app
 

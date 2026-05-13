@@ -7,7 +7,7 @@ struct SDL_Renderer;
 
 namespace arkanoid::render {
 
-bool renderFrame(SDL_Renderer* renderer, const arkanoid::GameState& state);
+[[nodiscard]] bool renderFrame(SDL_Renderer* renderer, const arkanoid::GameState& state);
 
 } // namespace arkanoid::render
 

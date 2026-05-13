@@ -8,13 +8,13 @@ namespace arkanoid::app {
 
 class FixedStepTimer final {
   public:
-    static std::optional<FixedStepTimer> create();
+    [[nodiscard]] static std::optional<FixedStepTimer> create();
 
     void beginFrame();
-    bool hasStep() const;
+    [[nodiscard]] bool hasStep() const;
     void consumeStep();
 
-    static constexpr float fixedStepSeconds() {
+    [[nodiscard]] static constexpr float fixedStepSeconds() {
         return 1.0f / 120.0f;
     }
 

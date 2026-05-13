@@ -5,7 +5,7 @@ namespace arkanoid::app {
 
 enum class RunMode { Normal, ReleaseStartupSmoke, Invalid };
 
-RunMode parseRunMode(int argc, char* argv[]);
+[[nodiscard]] RunMode parseRunMode(int argc, char* argv[]);
 
 } // namespace arkanoid::app
 
