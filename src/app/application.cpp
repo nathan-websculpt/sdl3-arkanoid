@@ -2,7 +2,6 @@
 
 #include <SDL3/SDL.h>
 #include <memory>
-#include <optional>
 
 #include "app/frame_timing.hpp"
 #include "app/input.hpp"
@@ -85,11 +84,7 @@ int runApplication(RunMode runMode) {
         return 0;
     }
 
-    std::optional<FixedStepTimer> timer = FixedStepTimer::create();
-    if (!timer.has_value()) {
-        SDL_Log("Failed to initialize fixed-step timer: SDL performance frequency was zero");
-        return 1;
-    }
+    FixedStepTimer timer = FixedStepTimer::create();
 
     bool running = true;
     while (running) {
@@ -102,11 +97,11 @@ int runApplication(RunMode runMode) {
 
         const InputState input = readInputState();
 
-        timer->beginFrame();
-        while (timer->hasStep()) {
+        timer.beginFrame();
+        while (timer.hasStep()) {
             game.setInput(input.moveLeftHeld, input.moveRightHeld, input.serveHeld);
             game.update(FixedStepTimer::fixedStepSeconds());
-            timer->consumeStep();
+            timer.consumeStep();
         }
 
         if (!arkanoid::render::renderFrame(renderer.get(), game.getState())) {

@@ -26,7 +26,7 @@ Current timing constants:
 
 Loop behavior:
 
-- elapsed time is measured with SDL performance counters
+- elapsed time is measured with `std::chrono::steady_clock`
 - non-finite or negative frame delta is treated as `0`
 - large frame delta is clamped before accumulation
 - simulation advances in fixed increments via repeated `game.update(step)` calls

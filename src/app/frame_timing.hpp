@@ -1,14 +1,13 @@
 #ifndef ARKANOID_APP_FRAME_TIMING_HPP
 #define ARKANOID_APP_FRAME_TIMING_HPP
 
-#include <cstdint>
-#include <optional>
+#include <chrono>
 
 namespace arkanoid::app {
 
 class FixedStepTimer final {
   public:
-    [[nodiscard]] static std::optional<FixedStepTimer> create();
+    [[nodiscard]] static FixedStepTimer create();
 
     void beginFrame();
     [[nodiscard]] bool hasStep() const;
@@ -19,10 +18,9 @@ class FixedStepTimer final {
     }
 
   private:
-    FixedStepTimer(std::uint64_t performanceFrequency, std::uint64_t previousCounter);
+    explicit FixedStepTimer(std::chrono::steady_clock::time_point previousFrameTime);
 
-    std::uint64_t m_performanceFrequency{};
-    std::uint64_t m_previousCounter{};
+    std::chrono::steady_clock::time_point m_previousFrameTime;
     float m_accumulatorSeconds{};
 };
 

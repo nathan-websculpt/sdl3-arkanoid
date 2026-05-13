@@ -1,6 +1,6 @@
 #include "app/frame_timing.hpp"
 
-#include <SDL3/SDL.h>
+#include <chrono>
 #include <cmath>
 
 namespace arkanoid::app {
@@ -8,30 +8,22 @@ namespace arkanoid::app {
 namespace {
 
 constexpr float kMaxFrameDeltaSeconds = 0.25f;
+using SecondsF = std::chrono::duration<float>;
 
 } // namespace
 
-std::optional<FixedStepTimer> FixedStepTimer::create() {
-    const Uint64 performanceFrequency = SDL_GetPerformanceFrequency();
-    if (performanceFrequency == 0u) {
-        return std::nullopt;
-    }
-
-    return FixedStepTimer{static_cast<std::uint64_t>(performanceFrequency),
-                          static_cast<std::uint64_t>(SDL_GetPerformanceCounter())};
+FixedStepTimer FixedStepTimer::create() {
+    return FixedStepTimer{std::chrono::steady_clock::now()};
 }
 
-FixedStepTimer::FixedStepTimer(std::uint64_t performanceFrequency, std::uint64_t previousCounter)
-    : m_performanceFrequency(performanceFrequency), m_previousCounter(previousCounter) {}
+FixedStepTimer::FixedStepTimer(std::chrono::steady_clock::time_point previousFrameTime)
+    : m_previousFrameTime(previousFrameTime) {}
 
 void FixedStepTimer::beginFrame() {
-    const Uint64 currentCounter = SDL_GetPerformanceCounter();
-    const std::uint64_t currentCount = static_cast<std::uint64_t>(currentCounter);
-    const std::uint64_t elapsedCounts = currentCount - m_previousCounter;
-    m_previousCounter = currentCount;
+    const auto currentFrameTime = std::chrono::steady_clock::now();
+    float frameDeltaSeconds = SecondsF{currentFrameTime - m_previousFrameTime}.count();
+    m_previousFrameTime = currentFrameTime;
 
-    float frameDeltaSeconds = static_cast<float>(static_cast<double>(elapsedCounts) /
-                                                 static_cast<double>(m_performanceFrequency));
     if (!std::isfinite(frameDeltaSeconds) || frameDeltaSeconds < 0.0f) {
         frameDeltaSeconds = 0.0f;
     }
