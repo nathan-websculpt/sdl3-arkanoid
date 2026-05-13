@@ -9,6 +9,12 @@
 
 namespace arkanoid::test {
 
+struct GameTestAccess final {
+    static arkanoid::GameState& mutableState(arkanoid::Game& game) noexcept {
+        return game.m_state;
+    }
+};
+
 inline void advanceToCountdownGreen(arkanoid::Game& game) {
     game.update(0.25f);
     game.update(0.35f);
@@ -94,7 +100,7 @@ inline void advanceLifeLostTransitionToCountdownYellow1(arkanoid::Game& game) {
 inline void seedPlayingBallState(arkanoid::Game& game, float x, float y, float vx, float vy) {
     advanceToPlaying(game);
 
-    arkanoid::GameState& mutableState = const_cast<arkanoid::GameState&>(game.getState());
+    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
     mutableState.ball.x = x;
     mutableState.ball.y = y;
     mutableState.ball.vx = vx;
@@ -105,7 +111,7 @@ inline void seedPlayingPaddleAndBallState(arkanoid::Game& game, float paddleX, f
                                           float ballY, float ballVx, float ballVy) {
     seedPlayingBallState(game, ballX, ballY, ballVx, ballVy);
 
-    arkanoid::GameState& mutableState = const_cast<arkanoid::GameState&>(game.getState());
+    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
     mutableState.paddle.x = paddleX;
 }
 
@@ -118,7 +124,7 @@ inline std::size_t aliveBrickCount(const arkanoid::GameState& state) {
 inline void seedFinalBrickHit(arkanoid::Game& game, float ballVy) {
     advanceToPlaying(game);
 
-    arkanoid::GameState& mutableState = const_cast<arkanoid::GameState&>(game.getState());
+    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
     for (arkanoid::BrickState& brick : mutableState.bricks) {
         brick.alive = false;
     }

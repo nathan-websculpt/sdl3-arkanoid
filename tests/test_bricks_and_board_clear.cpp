@@ -9,7 +9,7 @@ TEST(GameState, BrickHitRemovesExactlyOneBrick) {
     arkanoid::Game game;
     advanceToPlaying(game);
 
-    arkanoid::GameState& mutableState = const_cast<arkanoid::GameState&>(game.getState());
+    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
     const arkanoid::BrickState firstBrick = mutableState.bricks[0];
     mutableState.ball.x = firstBrick.x + 1.0f;
     mutableState.ball.y = firstBrick.y - 5.0f;
@@ -34,7 +34,7 @@ TEST(GameState, RemovedBrickNoLongerCollides) {
     arkanoid::Game game;
     advanceToPlaying(game);
 
-    arkanoid::GameState& mutableState = const_cast<arkanoid::GameState&>(game.getState());
+    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
     const arkanoid::BrickState firstBrick = mutableState.bricks[0];
     mutableState.ball.x = firstBrick.x + 1.0f;
     mutableState.ball.y = firstBrick.y - 5.0f;
@@ -69,7 +69,7 @@ TEST(GameState, NonHitLeavesBricksUnchanged) {
     arkanoid::Game game;
     advanceToPlaying(game);
 
-    arkanoid::GameState& mutableState = const_cast<arkanoid::GameState&>(game.getState());
+    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
     mutableState.ball.x = 900.0f;
     mutableState.ball.y = 500.0f;
     mutableState.ball.vx = 0.0f;

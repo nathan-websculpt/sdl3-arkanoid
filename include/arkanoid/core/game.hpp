@@ -5,6 +5,10 @@
 
 namespace arkanoid {
 
+namespace test {
+struct GameTestAccess;
+} // namespace test
+
 class Game {
   public:
     Game();
@@ -15,6 +19,8 @@ class Game {
     const GameState& getState() const;
 
   private:
+    friend struct test::GameTestAccess;
+
     GameState m_state;
     bool m_moveLeftHeld{};
     bool m_moveRightHeld{};
