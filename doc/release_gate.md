@@ -6,7 +6,7 @@ Run the packaged Windows release gate:
 .\tools\windows\release.ps1
 ```
 
-If PowerShell blocks script execution, use the one-off fallback noted in the README:
+If PowerShell blocks script execution, use the one-off fallback:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass

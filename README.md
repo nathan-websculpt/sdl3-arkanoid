@@ -4,6 +4,25 @@
 
 Small C++20 / SDL3 Arkanoid-style game with a Windows-first CMake/vcpkg workflow. The runtime stays intentionally direct: SDL input is sampled, fixed-step gameplay mutates `GameState`, and rendering reads from that state.
 
+## Why This Project Exists
+
+Many small game projects add abstraction before the gameplay needs it.
+This project keeps the runtime small and explicit:
+
+- match architecture to problem size
+- keep gameplay mutation centralized
+- keep rendering read-only
+
+## Current Scope
+
+- solid-color primitives (no texture/sprite pipeline)
+- no menus or UI systems
+- no score HUD
+- no powerups or special brick types
+- no lives counter
+- no game-over or win screen
+- board clear auto-restarts a new game
+
 ## Quick Start
 
 Requirements:
@@ -59,7 +78,6 @@ Generated output lives under `out/`, primarily `out/build-win-vcpkg`, `out/build
 - Left Arrow: move paddle left
 - Right Arrow: move paddle right
 - Space: serve on press in `BallReady`
-- Close window: quit
 
 ## Docs
 
@@ -75,6 +93,16 @@ Generated output lives under `out/`, primarily `out/build-win-vcpkg`, `out/build
 - `src/render/render_frame.cpp` renders read-only from `GameState`
 - Gameplay mutation is performed through `arkanoid::Game::update()`
 - `GameState` is authoritative runtime state
+
+## Open in Visual Studio
+
+1. Install Visual Studio with the **Desktop development with C++** workload.
+2. Ensure `VCPKG_ROOT` is set to your vcpkg installation path.
+3. Open the repository root folder in Visual Studio (`File > Open > Folder`).
+4. Select configure preset `windows-vcpkg`.
+5. Build in `Debug` or `Release` (corresponds to build presets `windows-vcpkg-debug` and `windows-vcpkg-release`).
+6. If prompted about a toolchain/cache mismatch, click **Delete and regenerate cache**.
+7. Build and run target `arkanoid`.
 
 ## License
 
