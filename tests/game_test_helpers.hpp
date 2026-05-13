@@ -3,9 +3,11 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <gtest/gtest.h>
 
 #include "arkanoid/core/game.hpp"
+#include "arkanoid/core/game_geometry.hpp"
 
 namespace arkanoid::test {
 
@@ -131,7 +133,7 @@ inline void seedFinalBrickHit(arkanoid::Game& game, float ballVy) {
 
     arkanoid::BrickState& finalBrick = mutableState.bricks[0];
     finalBrick.alive = true;
-    mutableState.score = 23u;
+    mutableState.score = static_cast<std::uint32_t>(arkanoid::kBrickCount - std::size_t{1});
     mutableState.ball.x = finalBrick.x + 1.0f;
     mutableState.ball.y = finalBrick.y - 5.0f;
     mutableState.ball.vx = 0.0f;

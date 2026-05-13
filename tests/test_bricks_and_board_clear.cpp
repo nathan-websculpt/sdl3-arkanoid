@@ -1,6 +1,8 @@
 #include <cstddef>
+#include <cstdint>
 #include <gtest/gtest.h>
 
+#include "arkanoid/core/game_geometry.hpp"
 #include "game_test_helpers.hpp"
 
 using namespace arkanoid::test;
@@ -82,7 +84,7 @@ TEST(GameState, NonHitLeavesBricksUnchanged) {
     game.update(0.05f);
 
     EXPECT_EQ(aliveBrickCount(game.getState()), aliveBefore);
-    EXPECT_EQ(aliveBrickCount(game.getState()), static_cast<std::size_t>(24));
+    EXPECT_EQ(aliveBrickCount(game.getState()), arkanoid::kBrickCount);
     EXPECT_EQ(game.getState().score, scoreBefore);
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 50.0f);
 }
@@ -94,7 +96,7 @@ TEST(GameState, FinalBrickHitTransitionsToBoardClearedTransition) {
 
     EXPECT_EQ(aliveBrickCount(game.getState()), static_cast<std::size_t>(0));
     EXPECT_FALSE(game.getState().bricks[0].alive);
-    EXPECT_EQ(game.getState().score, 24u);
+    EXPECT_EQ(game.getState().score, static_cast<std::uint32_t>(arkanoid::kBrickCount));
 }
 
 TEST(GameState, BoardClearBeatsBottomLossInSameUpdate) {
@@ -106,8 +108,8 @@ TEST(GameState, BoardClearBeatsBottomLossInSameUpdate) {
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::BoardClearedTransition);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
-    EXPECT_GT(game.getState().ball.y, 720.0f);
-    EXPECT_EQ(game.getState().score, 24u);
+    EXPECT_GT(game.getState().ball.y, arkanoid::kPlayfieldMaxY);
+    EXPECT_EQ(game.getState().score, static_cast<std::uint32_t>(arkanoid::kBrickCount));
 }
 
 TEST(GameState, BoardClearRestartRestoresNewGameState) {
@@ -116,14 +118,14 @@ TEST(GameState, BoardClearRestartRestoresNewGameState) {
 
     arkanoid::Game game;
     advanceToBoardClearedTransition(game, false);
-    ASSERT_EQ(game.getState().score, 24u);
+    ASSERT_EQ(game.getState().score, static_cast<std::uint32_t>(arkanoid::kBrickCount));
     ASSERT_EQ(aliveBrickCount(game.getState()), static_cast<std::size_t>(0));
 
     game.update(0.01f);
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::CountdownYellow1);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
-    EXPECT_EQ(aliveBrickCount(game.getState()), static_cast<std::size_t>(24));
+    EXPECT_EQ(aliveBrickCount(game.getState()), arkanoid::kBrickCount);
     EXPECT_EQ(game.getState().score, 0u);
     EXPECT_FLOAT_EQ(game.getState().paddle.x, canonicalPreServeState.paddle.x);
     EXPECT_FLOAT_EQ(game.getState().ball.x, canonicalPreServeState.ball.x);
@@ -179,6 +181,6 @@ TEST(GameState, InvalidDtDoesNotMutateBoardClearedTransition) {
     game.update(0.01f);
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::CountdownYellow1);
-    EXPECT_EQ(aliveBrickCount(game.getState()), static_cast<std::size_t>(24));
+    EXPECT_EQ(aliveBrickCount(game.getState()), arkanoid::kBrickCount);
     EXPECT_EQ(game.getState().score, 0u);
 }

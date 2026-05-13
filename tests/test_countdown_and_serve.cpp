@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include "arkanoid/core/game_geometry.hpp"
 #include "game_test_helpers.hpp"
 
 using namespace arkanoid::test;
@@ -9,9 +10,9 @@ TEST(GameState, StartsInCountdown) {
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::CountdownYellow1);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
-    EXPECT_FLOAT_EQ(game.getState().paddle.x, 480.0f);
-    EXPECT_FLOAT_EQ(game.getState().ball.x, 480.0f);
-    EXPECT_FLOAT_EQ(game.getState().ball.y, 368.0f);
+    EXPECT_FLOAT_EQ(game.getState().paddle.x, arkanoid::kCanonicalPreServeCenterX);
+    EXPECT_FLOAT_EQ(game.getState().ball.x, arkanoid::kCanonicalPreServeCenterX);
+    EXPECT_FLOAT_EQ(game.getState().ball.y, arkanoid::kCanonicalPreServeBallY);
 }
 
 TEST(GameState, AccumulatesTimerWithoutTransition) {
@@ -78,7 +79,7 @@ TEST(GameState, TransitionsFromCountdownGreenToLaunchDropAtBoundary) {
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
     EXPECT_FLOAT_EQ(game.getState().paddle.x, 500.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.x, 500.0f);
-    EXPECT_FLOAT_EQ(game.getState().ball.y, 368.0f);
+    EXPECT_FLOAT_EQ(game.getState().ball.y, arkanoid::kCanonicalPreServeBallY);
     EXPECT_FLOAT_EQ(game.getState().ball.vx, 0.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 400.0f);
 }
@@ -138,7 +139,7 @@ TEST(GameState, PaddleMovementIsAppliedWhileBallReady) {
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::BallReady);
     EXPECT_FLOAT_EQ(game.getState().paddle.x, 580.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.x, game.getState().paddle.x);
-    EXPECT_FLOAT_EQ(game.getState().ball.y, 620.0f);
+    EXPECT_FLOAT_EQ(game.getState().ball.y, arkanoid::kPaddleTopY);
     EXPECT_FLOAT_EQ(game.getState().ball.vx, 0.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 0.0f);
 }
@@ -151,15 +152,15 @@ TEST(GameState, PaddleMovementClampsToBoundsWhileBallReady) {
     game.update(10.0f);
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::BallReady);
-    EXPECT_FLOAT_EQ(game.getState().paddle.x, 0.0f);
-    EXPECT_FLOAT_EQ(game.getState().ball.x, 0.0f);
+    EXPECT_FLOAT_EQ(game.getState().paddle.x, arkanoid::kPlayfieldMinX);
+    EXPECT_FLOAT_EQ(game.getState().ball.x, arkanoid::kPlayfieldMinX);
 
     game.setInput(false, true, false);
     game.update(10.0f);
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::BallReady);
-    EXPECT_FLOAT_EQ(game.getState().paddle.x, 960.0f);
-    EXPECT_FLOAT_EQ(game.getState().ball.x, 960.0f);
+    EXPECT_FLOAT_EQ(game.getState().paddle.x, arkanoid::kPlayfieldMaxX);
+    EXPECT_FLOAT_EQ(game.getState().ball.x, arkanoid::kPlayfieldMaxX);
 }
 
 TEST(GameState, OpposingHorizontalInputProducesNoMovementWhileBallReady) {
@@ -176,7 +177,7 @@ TEST(GameState, OpposingHorizontalInputProducesNoMovementWhileBallReady) {
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::BallReady);
     EXPECT_FLOAT_EQ(game.getState().paddle.x, xAfterRightMove);
     EXPECT_FLOAT_EQ(game.getState().ball.x, xAfterRightMove);
-    EXPECT_FLOAT_EQ(game.getState().ball.y, 620.0f);
+    EXPECT_FLOAT_EQ(game.getState().ball.y, arkanoid::kPaddleTopY);
 }
 
 TEST(GameState, ServeHeldAcrossBallReadyEntryDoesNotTriggerPlaying) {
@@ -207,7 +208,7 @@ TEST(GameState, ServeRisingEdgeTransitionsFromBallReadyToPlayingWithServeVelocit
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::Playing);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.x, game.getState().paddle.x);
-    EXPECT_FLOAT_EQ(game.getState().ball.y, 620.0f);
+    EXPECT_FLOAT_EQ(game.getState().ball.y, arkanoid::kPaddleTopY);
     EXPECT_FLOAT_EQ(game.getState().ball.vx, 0.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.vy, -400.0f);
 }
@@ -222,7 +223,7 @@ TEST(GameState, FirstPlayingUpdateAfterServeIntegratesFreeMotionOnly) {
     ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::Playing);
     ASSERT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
     ASSERT_FLOAT_EQ(game.getState().ball.x, game.getState().paddle.x);
-    ASSERT_FLOAT_EQ(game.getState().ball.y, 620.0f);
+    ASSERT_FLOAT_EQ(game.getState().ball.y, arkanoid::kPaddleTopY);
     ASSERT_FLOAT_EQ(game.getState().ball.vx, 0.0f);
     ASSERT_FLOAT_EQ(game.getState().ball.vy, -400.0f);
 

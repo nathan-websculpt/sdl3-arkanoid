@@ -67,7 +67,7 @@ Public API:
 
 - paddle
 - ball
-- fixed-size brick array (`24`)
+- a fixed-size brick array whose size is derived from the configured row/column layout
 - score
 - current phase
 - phase timer

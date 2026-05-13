@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <string_view>
 
+#include "arkanoid/core/game_geometry.hpp"
+
 namespace arkanoid {
 
 namespace {
@@ -15,31 +17,10 @@ constexpr float kCountdownPause1Duration = 0.35f;
 constexpr float kCountdownYellow2Duration = 0.25f;
 constexpr float kCountdownPause2Duration = 0.35f;
 constexpr float kCountdownGreenDuration = 0.10f;
-constexpr float kLaunchDropSpawnY = 368.0f;
-constexpr float kLaunchDropContactY = 620.0f;
 constexpr float kLaunchDropVelocityY = 400.0f;
 constexpr float kServeVelocityY = -400.0f;
 constexpr float kPaddleSpeed = 400.0f;
-constexpr float kPaddleHalfWidth = 80.0f;
 constexpr float kPaddleMaxHorizontalSpeedFactor = 0.85f;
-constexpr float kPlayfieldMinX = 0.0f;
-constexpr float kPlayfieldMaxX = 960.0f;
-constexpr float kPlayfieldMinY = 0.0f;
-constexpr float kPlayfieldMaxY = 720.0f;
-constexpr int kBrickRows = 3;
-constexpr int kBrickColumns = 8;
-constexpr float kBrickWidth = 100.0f;
-constexpr float kBrickHeight = 24.0f;
-constexpr float kBrickHorizontalGap = 8.0f;
-constexpr float kBrickVerticalGap = 8.0f;
-constexpr float kBrickStartX = 52.0f;
-constexpr float kBrickStartY = 80.0f;
-constexpr float kCanonicalPreServeCenterX = (kPlayfieldMinX + kPlayfieldMaxX) * 0.5f;
-constexpr float kBrickFieldBottomY =
-    kBrickStartY + static_cast<float>(kBrickRows - 1) * (kBrickHeight + kBrickVerticalGap) +
-    kBrickHeight;
-constexpr float kCanonicalPreServeBallOffsetY = 200.0f;
-constexpr float kCanonicalPreServeBallY = kBrickFieldBottomY + kCanonicalPreServeBallOffsetY;
 constexpr std::array<std::string_view, static_cast<std::size_t>(kBrickRows)> kBrickLayout{
     "XXXXXXXX",
     "XXXXXXXX",
@@ -65,8 +46,8 @@ constexpr bool isValidBrickLayout() {
 static_assert(isValidBrickLayout(),
               "brick layout must use only X/. and match configured dimensions");
 
-std::array<BrickState, 24> makeInitialBricks() {
-    std::array<BrickState, 24> bricks{};
+std::array<BrickState, kBrickCount> makeInitialBricks() {
+    std::array<BrickState, kBrickCount> bricks{};
     for (int row = 0; row < kBrickRows; ++row) {
         for (int column = 0; column < kBrickColumns; ++column) {
             const int index = (row * kBrickColumns) + column;
@@ -119,7 +100,7 @@ void applyCanonicalPreServePose(GameState& state) {
     state.ball.vy = 0.0f;
 }
 
-bool hasLiveBrick(const std::array<BrickState, 24>& bricks) {
+bool hasLiveBrick(const std::array<BrickState, kBrickCount>& bricks) {
     return std::ranges::any_of(bricks, [](const BrickState& brick) { return brick.alive; });
 }
 
@@ -187,7 +168,7 @@ void Game::update(float dt) {
     case GamePhase::CountdownGreen:
         if (m_state.phaseTime >= kCountdownGreenDuration) {
             m_state.ball.x = m_state.paddle.x;
-            m_state.ball.y = kLaunchDropSpawnY;
+            m_state.ball.y = kCanonicalPreServeBallY;
             m_state.ball.vx = 0.0f;
             m_state.ball.vy = kLaunchDropVelocityY;
             m_state.phase = GamePhase::LaunchDrop;
@@ -197,9 +178,9 @@ void Game::update(float dt) {
     case GamePhase::LaunchDrop:
         m_state.ball.x = m_state.paddle.x;
         m_state.ball.y += m_state.ball.vy * dt;
-        if (m_state.ball.y >= kLaunchDropContactY) {
+        if (m_state.ball.y >= kPaddleTopY) {
             m_state.ball.x = m_state.paddle.x;
-            m_state.ball.y = kLaunchDropContactY;
+            m_state.ball.y = kPaddleTopY;
             m_state.ball.vx = 0.0f;
             m_state.ball.vy = 0.0f;
             m_state.phase = GamePhase::BallReady;
@@ -208,7 +189,7 @@ void Game::update(float dt) {
         break;
     case GamePhase::BallReady: {
         m_state.ball.x = m_state.paddle.x;
-        m_state.ball.y = kLaunchDropContactY;
+        m_state.ball.y = kPaddleTopY;
         m_state.ball.vx = 0.0f;
         m_state.ball.vy = 0.0f;
 
@@ -241,15 +222,14 @@ void Game::update(float dt) {
         }
 
         const bool ballMovingDownward = m_state.ball.vy > 0.0f;
-        const bool crossedPaddleTop =
-            previousBallY < kLaunchDropContactY && m_state.ball.y >= kLaunchDropContactY;
+        const bool crossedPaddleTop = previousBallY < kPaddleTopY && m_state.ball.y >= kPaddleTopY;
         const float paddleMinX = m_state.paddle.x - kPaddleHalfWidth;
         const float paddleMaxX = m_state.paddle.x + kPaddleHalfWidth;
         const bool ballWithinPaddleCoverage =
             m_state.ball.x >= paddleMinX && m_state.ball.x <= paddleMaxX;
 
         if (ballMovingDownward && crossedPaddleTop && ballWithinPaddleCoverage) {
-            m_state.ball.y = kLaunchDropContactY;
+            m_state.ball.y = kPaddleTopY;
             const float speed = std::hypot(m_state.ball.vx, m_state.ball.vy);
             const float rawOffset = (m_state.ball.x - m_state.paddle.x) / kPaddleHalfWidth;
             const float offset = std::clamp(rawOffset, -1.0f, 1.0f);

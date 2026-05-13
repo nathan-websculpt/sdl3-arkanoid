@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdint>
 
+#include "arkanoid/core/game_geometry.hpp"
 #include "arkanoid/core/game_phase.hpp"
 
 namespace arkanoid {
@@ -28,7 +29,7 @@ struct BrickState {
 struct GameState {
     PaddleState paddle;
     BallState ball;
-    std::array<BrickState, 24> bricks{};
+    std::array<BrickState, kBrickCount> bricks{};
     std::uint32_t score{};
 
     GamePhase phase{};

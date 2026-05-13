@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <limits>
 
+#include "arkanoid/core/game_geometry.hpp"
 #include "game_test_helpers.hpp"
 
 using namespace arkanoid::test;
@@ -14,7 +15,7 @@ TEST(GameState, LeftWallBounceReflectsAndClamps) {
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::Playing);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.20f);
-    EXPECT_FLOAT_EQ(game.getState().ball.x, 0.0f);
+    EXPECT_FLOAT_EQ(game.getState().ball.x, arkanoid::kPlayfieldMinX);
     EXPECT_FLOAT_EQ(game.getState().ball.y, 300.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.vx, 100.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 0.0f);
@@ -29,7 +30,7 @@ TEST(GameState, RightWallBounceReflectsAndClamps) {
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::Playing);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.20f);
-    EXPECT_FLOAT_EQ(game.getState().ball.x, 960.0f);
+    EXPECT_FLOAT_EQ(game.getState().ball.x, arkanoid::kPlayfieldMaxX);
     EXPECT_FLOAT_EQ(game.getState().ball.y, 300.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.vx, -100.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 0.0f);
@@ -45,7 +46,7 @@ TEST(GameState, TopWallBounceReflectsAndClamps) {
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::Playing);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.20f);
     EXPECT_FLOAT_EQ(game.getState().ball.x, 400.0f);
-    EXPECT_FLOAT_EQ(game.getState().ball.y, 0.0f);
+    EXPECT_FLOAT_EQ(game.getState().ball.y, arkanoid::kPlayfieldMinY);
     EXPECT_FLOAT_EQ(game.getState().ball.vx, 0.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.vy, 100.0f);
 }
@@ -60,7 +61,7 @@ TEST(GameState, DirectDownwardPaddleHitReflectsUpward) {
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::Playing);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.20f);
     EXPECT_FLOAT_EQ(game.getState().ball.x, 400.0f);
-    EXPECT_FLOAT_EQ(game.getState().ball.y, 620.0f);
+    EXPECT_FLOAT_EQ(game.getState().ball.y, arkanoid::kPaddleTopY);
     EXPECT_FLOAT_EQ(game.getState().ball.vx, 0.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.vy, -100.0f);
 }
@@ -130,8 +131,8 @@ TEST(GameState, WallThenPaddleOrderingIsDeterministic) {
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::Playing);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.20f);
-    EXPECT_FLOAT_EQ(game.getState().ball.x, 0.0f);
-    EXPECT_FLOAT_EQ(game.getState().ball.y, 620.0f);
+    EXPECT_FLOAT_EQ(game.getState().ball.x, arkanoid::kPlayfieldMinX);
+    EXPECT_FLOAT_EQ(game.getState().ball.y, arkanoid::kPaddleTopY);
     EXPECT_LT(game.getState().ball.vx, 0.0f);
     EXPECT_LT(game.getState().ball.vy, 0.0f);
 }
@@ -161,7 +162,7 @@ TEST(GameState, InvalidDtDoesNotMutatePendingPaddleCollision) {
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::Playing);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, stateBeforeInvalidDt.phaseTime + 0.20f);
     EXPECT_FLOAT_EQ(game.getState().ball.x, 400.0f);
-    EXPECT_FLOAT_EQ(game.getState().ball.y, 620.0f);
+    EXPECT_FLOAT_EQ(game.getState().ball.y, arkanoid::kPaddleTopY);
     EXPECT_FLOAT_EQ(game.getState().ball.vx, 0.0f);
     EXPECT_FLOAT_EQ(game.getState().ball.vy, -100.0f);
 }

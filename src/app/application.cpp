@@ -7,14 +7,12 @@
 #include "app/frame_timing.hpp"
 #include "app/input.hpp"
 #include "arkanoid/core/game.hpp"
+#include "arkanoid/core/game_geometry.hpp"
 #include "render/render_frame.hpp"
 
 namespace arkanoid::app {
 
 namespace {
-
-constexpr int kWindowWidth = 960;
-constexpr int kWindowHeight = 720;
 
 struct SdlQuitGuard final {
     SdlQuitGuard() = default;

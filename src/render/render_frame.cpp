@@ -2,16 +2,12 @@
 
 #include <SDL3/SDL.h>
 
+#include "arkanoid/core/game_geometry.hpp"
+
 namespace arkanoid::render {
 
 namespace {
 
-constexpr int kWindowWidth = 960;
-constexpr float kPaddleHalfWidth = 80.0f;
-constexpr float kPaddleHeight = 16.0f;
-constexpr float kPaddleTopY = 620.0f;
-constexpr float kBrickWidth = 100.0f;
-constexpr float kBrickHeight = 24.0f;
 constexpr float kBallSize = 6.0f;
 constexpr float kCountdownIndicatorSize = 20.0f;
 constexpr float kCountdownIndicatorY = 560.0f;

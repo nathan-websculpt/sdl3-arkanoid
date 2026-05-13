@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <gtest/gtest.h>
 
+#include "arkanoid/core/game_geometry.hpp"
 #include "game_test_helpers.hpp"
 
 using namespace arkanoid::test;
@@ -27,7 +28,7 @@ TEST(GameState, CrossingBottomBoundaryTransitionsToLifeLostTransition) {
 
     EXPECT_EQ(equalityGame.getState().phase, arkanoid::GamePhase::LifeLostTransition);
     EXPECT_FLOAT_EQ(equalityGame.getState().phaseTime, 0.0f);
-    EXPECT_FLOAT_EQ(equalityGame.getState().ball.y, 720.0f);
+    EXPECT_FLOAT_EQ(equalityGame.getState().ball.y, arkanoid::kPlayfieldMaxY);
 }
 
 TEST(GameState, NonCrossingBottomBoundaryRemainsPlaying) {
