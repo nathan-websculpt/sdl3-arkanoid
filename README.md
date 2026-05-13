@@ -100,7 +100,7 @@ Generated output lives under `out/`, primarily `out/build-win-vcpkg`, `out/build
 2. Ensure `VCPKG_ROOT` is set to your vcpkg installation path.
 3. Open the repository root folder in Visual Studio (`File > Open > Folder`).
 4. Select configure preset `windows-vcpkg`.
-5. Build in `Debug` or `Release` (corresponds to build presets `windows-vcpkg-debug` and `windows-vcpkg-release`).
+5. Build in `Debug` or `Release` (corresponds to build presets `windows-debug` and `windows-release`).
 6. If prompted about a toolchain/cache mismatch, click **Delete and regenerate cache**.
 7. Build and run target `arkanoid`.
 
