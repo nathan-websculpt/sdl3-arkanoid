@@ -17,6 +17,14 @@ constexpr int kWindowWidth = 960;
 constexpr int kWindowHeight = 720;
 
 struct SdlQuitGuard final {
+    SdlQuitGuard() = default;
+
+    // SDL_Quit is a process-wide lifetime action; this guard must not be copied or moved
+    SdlQuitGuard(const SdlQuitGuard&) = delete;
+    SdlQuitGuard& operator=(const SdlQuitGuard&) = delete;
+    SdlQuitGuard(SdlQuitGuard&&) = delete;
+    SdlQuitGuard& operator=(SdlQuitGuard&&) = delete;
+
     ~SdlQuitGuard() {
         SDL_Quit();
     }
