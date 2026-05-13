@@ -11,6 +11,14 @@ option(ARKANOID_ENABLE_MSVC_ANALYZE "Enable MSVC /analyze for selected targets" 
 include(CTest)
 include(GNUInstallDirs)
 
+function(arkanoid_apply_project_warnings target_name)
+    if(MSVC)
+        target_compile_options(${target_name} PRIVATE /W4 /permissive- /EHsc)
+    else()
+        target_compile_options(${target_name} PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+endfunction()
+
 add_library(arkanoid_lib STATIC)
 add_library(arkanoid::lib ALIAS arkanoid_lib)
 
@@ -38,11 +46,7 @@ target_include_directories(arkanoid_lib
 
 find_package(SDL3 CONFIG REQUIRED)
 
-if(MSVC)
-    target_compile_options(arkanoid_lib PRIVATE /W4 /permissive- /EHsc)
-else()
-    target_compile_options(arkanoid_lib PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+arkanoid_apply_project_warnings(arkanoid_lib)
 
 add_executable(arkanoid)
 target_sources(arkanoid PRIVATE ${ARKANOID_APP_SOURCES})
@@ -55,6 +59,7 @@ target_link_libraries(arkanoid
         arkanoid::lib
         SDL3::SDL3
 )
+arkanoid_apply_project_warnings(arkanoid)
 
 if(MSVC)
     target_link_options(arkanoid PRIVATE

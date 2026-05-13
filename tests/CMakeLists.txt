@@ -17,11 +17,7 @@ target_link_libraries(arkanoid_tests
 
 target_compile_features(arkanoid_tests PRIVATE cxx_std_20)
 
-if(MSVC)
-    target_compile_options(arkanoid_tests PRIVATE /W4 /permissive- /EHsc)
-else()
-    target_compile_options(arkanoid_tests PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+arkanoid_apply_project_warnings(arkanoid_tests)
 
 include(GoogleTest)
 gtest_discover_tests(arkanoid_tests)
