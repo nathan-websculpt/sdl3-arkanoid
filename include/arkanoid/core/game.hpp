@@ -9,9 +9,16 @@ namespace test {
 struct GameTestAccess;
 } // namespace test
 
-class Game {
+class Game final {
   public:
     Game();
+
+    // Game owns one authoritative simulation state; copying or moving would obscure that identity
+    Game(const Game&) = delete;
+    Game& operator=(const Game&) = delete;
+    Game(Game&&) = delete;
+    Game& operator=(Game&&) = delete;
+    ~Game() = default;
 
     void setInput(bool moveLeftHeld, bool moveRightHeld, bool serveHeld);
     void update(float dt);
