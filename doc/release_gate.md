@@ -14,7 +14,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 Optional inputs:
 
-- `-Clean` clears the Release CMake output and release-controlled package outputs before starting a fresh run
+- `-Clean` clears the shared normal Windows CMake build tree `out\build-win-vcpkg` and release-controlled package outputs before starting a fresh run
 - `-BuildIdentity <text>` records caller-provided metadata in release status/latest JSON; the default is `local`
 - `-VcpkgRoot <path>` sets `VCPKG_ROOT`
 
@@ -31,6 +31,7 @@ Stages:
 - run hidden `--release-startup-smoke` from the installed package
 - create `arkanoid-win64.zip` and compute SHA-256
 - extract, validate, and smoke the zip from isolated ASCII and non-ASCII paths
+- reject forbidden build/test artifacts, verify extracted zip contents match the installed package snapshot, and confirm startup smoke checks do not mutate package contents
 - promote artifacts only after every gate passes
 
 Artifacts:
@@ -42,7 +43,7 @@ Artifacts:
 - `out\dist\release-latest.json`
 - per-run staging and manifest under `out\dist\_runs\<run-id>`
 
-`-Clean` removes the configured Release CMake build directory `out\build-win-vcpkg`, then removes release-controlled outputs under `out\dist`: `_runs`, `install`, `arkanoid-win64.zip`, release status/latest JSON, and temporary promote paths. It does not delete all of `out\dist`, and it does not clean `out\build-win-vcpkg-analyze` or unrelated `out` contents.
+`-Clean` removes the shared normal Windows CMake build tree `out\build-win-vcpkg`, then removes release-controlled outputs under `out\dist`: `_runs`, `install`, `arkanoid-win64.zip`, release status/latest JSON, and temporary promote paths. It does not delete all of `out\dist`, and it does not clean `out\build-win-vcpkg-analyze` or unrelated `out` contents.
 
 `-BuildIdentity` defaults to `local`. It is written as `buildIdentity` in the per-run manifest, `release-status.json`, and `release-latest.json`. It does not change the generated run ID, staging paths, zip name, or promoted artifact paths.
 

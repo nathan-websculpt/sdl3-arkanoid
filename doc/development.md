@@ -107,7 +107,7 @@ ctest --preset windows-debug-tests --output-on-failure --no-tests=error
 
 `-BuildIdentity` defaults to `local`. It is metadata only, recorded as `buildIdentity` in the run manifest and release JSON; it does not affect run IDs, staging paths, zip names, or promoted paths.
 
-`-Clean` removes the Release CMake tree `out/build-win-vcpkg` and only release-controlled outputs under `out/dist`: `_runs`, `install`, `arkanoid-win64.zip`, `release-status.json`, `release-latest.json`, and temporary promotion files/directories. It does not delete unrelated `out` contents or the analyze build tree.
+`-Clean` removes the shared normal Windows CMake build tree `out/build-win-vcpkg` and only release-controlled outputs under `out/dist`: `_runs`, `install`, `arkanoid-win64.zip`, `release-status.json`, `release-latest.json`, and temporary promotion files/directories. It does not delete unrelated `out` contents or the analyze build tree.
 
 See [Release Gate](release_gate.md) for the validation details.
 
