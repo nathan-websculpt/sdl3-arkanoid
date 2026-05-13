@@ -27,6 +27,11 @@ freely, subject to the following restrictions:
 
 ---
 
+GoogleTest
+https://github.com/google/googletest
+
+License: BSD-3-Clause
+
 Copyright 2008, Google Inc.
 All rights reserved.
 
