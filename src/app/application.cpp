@@ -69,6 +69,10 @@ int runApplication(RunMode runMode) {
     if (!renderer) {
         return 1;
     }
+    if (!SDL_SetRenderVSync(renderer.get(), 1)) {
+        SDL_Log("Failed to enable renderer VSync: %s", SDL_GetError());
+        return 1;
+    }
 
     arkanoid::Game game;
     if (releaseStartupSmoke) {
