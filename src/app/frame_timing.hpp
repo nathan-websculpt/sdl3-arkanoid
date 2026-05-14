@@ -6,7 +6,7 @@
 namespace arkanoid::app {
 
 class FixedStepTimer final {
-  public:
+public:
     [[nodiscard]] static FixedStepTimer create();
 
     void beginFrame();
@@ -17,7 +17,7 @@ class FixedStepTimer final {
         return 1.0f / 120.0f;
     }
 
-  private:
+private:
     explicit FixedStepTimer(std::chrono::steady_clock::time_point previousFrameTime);
 
     std::chrono::steady_clock::time_point m_previousFrameTime;

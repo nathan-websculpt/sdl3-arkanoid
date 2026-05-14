@@ -17,6 +17,8 @@ PointerAlignment: Left
 SortIncludes: true
 IncludeBlocks: Regroup
 
+AccessModifierOffset: -4
+
 ReferenceAlignment: Pointer
 
 IncludeCategories:

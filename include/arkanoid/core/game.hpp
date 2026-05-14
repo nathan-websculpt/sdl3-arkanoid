@@ -12,7 +12,7 @@ struct GameTestAccess;
 #endif
 
 class Game final {
-  public:
+public:
     Game();
 
     // Game owns one authoritative simulation state; copying or moving would obscure that identity
@@ -27,7 +27,7 @@ class Game final {
 
     [[nodiscard]] const GameState& getState() const;
 
-  private:
+private:
 #if defined(ARKANOID_ENABLE_GAME_TEST_ACCESS)
     friend struct test::GameTestAccess;
 #endif
