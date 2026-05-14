@@ -13,7 +13,7 @@ This gate validates the Release build, tests, package, extraction paths, and sta
 .\tools\windows\release.ps1
 ```
 
-`analyze.ps1` exits nonzero for first-party compiler warnings and MSVC `/analyze` diagnostics under `src/` or `include/`.
+`analyze.ps1` exits nonzero for compiler warnings and MSVC `/analyze` diagnostics under `src/` or `include/`.
 
 If PowerShell blocks script execution, use the one-off fallback:
 

@@ -92,7 +92,7 @@ ctest --preset windows-debug-tests --output-on-failure --no-tests=error
 .\tools\windows\analyze.ps1 -VcpkgRoot "C:\path\to\vcpkg"
 ```
 
-`analyze.ps1` uses `windows-vcpkg-analyze`, writes to `out/build-win-vcpkg-analyze`, configures `/analyze` for selected targets, and builds the production `arkanoid` target. It exits nonzero on configure/build failure and on first-party compiler warnings or MSVC `/analyze` diagnostics reported under `src/` or `include/`. It is a diagnostics build lane, not a test runner. Use `test.ps1` for unit tests. Full local safety validation runs `analyze.ps1` first, then the packaged `release.ps1` gate. `analyze.ps1` supports `-Clean`, `-SkipConfigure`, and `-VcpkgRoot`; `-Clean` and `-SkipConfigure` cannot be combined.
+`analyze.ps1` uses `windows-vcpkg-analyze`, writes to `out/build-win-vcpkg-analyze`, configures `/analyze` for selected targets, and builds the production `arkanoid` target. It exits nonzero on configure/build failure and on compiler warnings or MSVC `/analyze` diagnostics reported under `src/` or `include/`. It is a diagnostics build lane, not a test runner. Use `test.ps1` for unit tests. Full local safety validation runs `analyze.ps1` first, then the packaged `release.ps1` gate. `analyze.ps1` supports `-Clean`, `-SkipConfigure`, and `-VcpkgRoot`; `-Clean` and `-SkipConfigure` cannot be combined.
 
 ## Release Gate
 

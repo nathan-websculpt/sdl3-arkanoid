@@ -115,11 +115,11 @@ try {
     }
 
     if ($diagnostics.Count -gt 0) {
-        $diagnosticFailureMessage = "Analyze completed with $($diagnostics.Count) first-party compiler warning/static-analysis diagnostic line(s)."
+        $diagnosticFailureMessage = "Analyze completed with $($diagnostics.Count) compiler warning/static-analysis diagnostic line(s)."
         Write-AnalyzeSummary -Message $diagnosticFailureMessage -Diagnostics $diagnostics
         Fail $diagnosticFailureMessage
     } else {
-        Write-AnalyzeSummary -Message "Analyze completed successfully with no detected first-party compiler warnings or static-analysis diagnostics." -Diagnostics @()
+        Write-AnalyzeSummary -Message "Analyze completed successfully with no detected compiler warnings or static-analysis diagnostics." -Diagnostics @()
     }
 } catch {
     [Console]::Error.WriteLine($_.Exception.Message)
