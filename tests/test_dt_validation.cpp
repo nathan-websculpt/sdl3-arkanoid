@@ -40,6 +40,35 @@ TEST(GameState, IgnoresNonPositiveDt) {
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.10f);
 }
 
+TEST(GameState, CapsHugeFiniteDtDuringCountdown) {
+    arkanoid::Game hugeDtGame;
+    arkanoid::Game cappedDtGame;
+
+    hugeDtGame.update(0.25f);
+    cappedDtGame.update(0.25f);
+
+    hugeDtGame.update(std::numeric_limits<float>::max());
+    cappedDtGame.update(0.25f);
+
+    EXPECT_EQ(hugeDtGame.getState().phase, cappedDtGame.getState().phase);
+    EXPECT_FLOAT_EQ(hugeDtGame.getState().phaseTime, cappedDtGame.getState().phaseTime);
+}
+
+TEST(GameState, CapsHugeFiniteDtDuringPlayingMotion) {
+    arkanoid::Game game;
+    seedPlayingBallState(game, 400.0f, 300.0f, 10.0f, 20.0f);
+    game.setInput(false, false, false);
+
+    game.update(std::numeric_limits<float>::max());
+
+    EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::Playing);
+    EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.25f);
+    EXPECT_FLOAT_EQ(game.getState().ball.x, 402.5f);
+    EXPECT_FLOAT_EQ(game.getState().ball.y, 305.0f);
+    EXPECT_FLOAT_EQ(game.getState().ball.vx, 10.0f);
+    EXPECT_FLOAT_EQ(game.getState().ball.vy, 20.0f);
+}
+
 TEST(GameState, InvalidDtDoesNotMutateBallReadyStateOrConsumeServeEdge) {
     arkanoid::Game game;
     advanceToBallReady(game);

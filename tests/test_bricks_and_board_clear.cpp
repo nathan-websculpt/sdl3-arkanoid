@@ -101,10 +101,10 @@ TEST(GameState, FinalBrickHitTransitionsToBoardClearedTransition) {
 
 TEST(GameState, BoardClearBeatsBottomLossInSameUpdate) {
     arkanoid::Game game;
-    seedFinalBrickHit(game, 1000.0f);
+    seedFinalBrickHit(game, 3000.0f);
 
     game.setInput(false, false, false);
-    game.update(1.0f);
+    game.update(0.25f);
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::BoardClearedTransition);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
@@ -146,7 +146,9 @@ TEST(GameState, ServeHeldAcrossBoardClearRestartDoesNotTriggerPlaying) {
     game.update(0.10f);
     ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::LaunchDrop);
 
-    game.update(1.0f);
+    game.update(0.25f);
+    game.update(0.25f);
+    game.update(0.25f);
     ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::BallReady);
 
     game.update(0.05f);

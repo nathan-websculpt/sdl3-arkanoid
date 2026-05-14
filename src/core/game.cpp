@@ -17,6 +17,7 @@ constexpr float kCountdownPause1Duration = 0.35f;
 constexpr float kCountdownYellow2Duration = 0.25f;
 constexpr float kCountdownPause2Duration = 0.35f;
 constexpr float kCountdownGreenDuration = 0.10f;
+constexpr float kMaxUpdateDeltaSeconds = 0.25f;
 constexpr float kLaunchDropVelocityY = 400.0f;
 constexpr float kServeVelocityY = -400.0f;
 constexpr float kPaddleSpeed = 400.0f;
@@ -131,6 +132,8 @@ void Game::update(float dt) {
     if (!std::isfinite(dt) || dt <= 0.0f) {
         return;
     }
+
+    dt = std::min(dt, kMaxUpdateDeltaSeconds);
 
     const int direction = movementDirection(m_moveLeftHeld, m_moveRightHeld);
     if (isPaddleMovementEnabled(m_state.phase) && direction != 0) {

@@ -37,7 +37,8 @@ TEST(GameState, TransitionsFromCountdownPause1ToCountdownYellow2AtBoundary) {
     arkanoid::Game game;
 
     game.update(0.25f);
-    game.update(0.35f);
+    game.update(0.25f);
+    game.update(0.10f);
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::CountdownYellow2);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
@@ -47,7 +48,8 @@ TEST(GameState, TransitionsFromCountdownYellow2ToCountdownPause2AtBoundary) {
     arkanoid::Game game;
 
     game.update(0.25f);
-    game.update(0.35f);
+    game.update(0.25f);
+    game.update(0.10f);
     game.update(0.25f);
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::CountdownPause2);
@@ -58,9 +60,11 @@ TEST(GameState, TransitionsFromCountdownPause2ToCountdownGreenAtBoundary) {
     arkanoid::Game game;
 
     game.update(0.25f);
-    game.update(0.35f);
     game.update(0.25f);
-    game.update(0.35f);
+    game.update(0.10f);
+    game.update(0.25f);
+    game.update(0.25f);
+    game.update(0.10f);
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::CountdownGreen);
     EXPECT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
@@ -110,7 +114,9 @@ TEST(GameState, LaunchDropClampsAndTransitionsToBallReady) {
     arkanoid::Game secondGame;
     advanceToLaunchDrop(secondGame);
 
-    firstGame.update(10.0f);
+    firstGame.update(0.25f);
+    firstGame.update(0.25f);
+    firstGame.update(0.25f);
 
     EXPECT_EQ(firstGame.getState().phase, arkanoid::GamePhase::BallReady);
     EXPECT_FLOAT_EQ(firstGame.getState().phaseTime, 0.0f);
@@ -119,7 +125,9 @@ TEST(GameState, LaunchDropClampsAndTransitionsToBallReady) {
     EXPECT_FLOAT_EQ(firstGame.getState().ball.vx, 0.0f);
     EXPECT_FLOAT_EQ(firstGame.getState().ball.vy, 0.0f);
 
-    secondGame.update(20.0f);
+    secondGame.update(0.25f);
+    secondGame.update(0.25f);
+    secondGame.update(0.25f);
 
     EXPECT_EQ(secondGame.getState().phase, arkanoid::GamePhase::BallReady);
     EXPECT_FLOAT_EQ(secondGame.getState().phaseTime, 0.0f);
@@ -148,15 +156,19 @@ TEST(GameState, PaddleMovementClampsToBoundsWhileBallReady) {
     arkanoid::Game game;
     advanceToBallReady(game);
 
+    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
+
     game.setInput(true, false, false);
-    game.update(10.0f);
+    mutableState.paddle.x = arkanoid::kPlayfieldMinX + 10.0f;
+    game.update(0.25f);
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::BallReady);
     EXPECT_FLOAT_EQ(game.getState().paddle.x, arkanoid::kPlayfieldMinX);
     EXPECT_FLOAT_EQ(game.getState().ball.x, arkanoid::kPlayfieldMinX);
 
     game.setInput(false, true, false);
-    game.update(10.0f);
+    mutableState.paddle.x = arkanoid::kPlayfieldMaxX - 10.0f;
+    game.update(0.25f);
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::BallReady);
     EXPECT_FLOAT_EQ(game.getState().paddle.x, arkanoid::kPlayfieldMaxX);
@@ -185,7 +197,9 @@ TEST(GameState, ServeHeldAcrossBallReadyEntryDoesNotTriggerPlaying) {
     advanceToLaunchDrop(game);
 
     game.setInput(false, false, true);
-    game.update(1.0f);
+    game.update(0.25f);
+    game.update(0.25f);
+    game.update(0.25f);
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::BallReady);
     EXPECT_FLOAT_EQ(game.getState().ball.vx, 0.0f);

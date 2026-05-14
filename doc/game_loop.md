@@ -62,6 +62,7 @@ Depending on phase, it advances timers/state and may:
 - trigger life-loss and reset transitions
 
 Invalid `dt` (`NaN`, `inf`, zero, or negative) is ignored.
+Finite positive `dt` values above `0.25` seconds are capped before simulation state changes.
 
 ## Render Boundary
 

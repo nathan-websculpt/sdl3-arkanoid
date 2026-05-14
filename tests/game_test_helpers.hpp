@@ -19,9 +19,11 @@ struct GameTestAccess final {
 
 inline void advanceToCountdownGreen(arkanoid::Game& game) {
     game.update(0.25f);
-    game.update(0.35f);
     game.update(0.25f);
-    game.update(0.35f);
+    game.update(0.10f);
+    game.update(0.25f);
+    game.update(0.25f);
+    game.update(0.10f);
 
     ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::CountdownGreen);
     ASSERT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
@@ -37,7 +39,9 @@ inline void advanceToLaunchDrop(arkanoid::Game& game) {
 
 inline void advanceToBallReady(arkanoid::Game& game) {
     advanceToLaunchDrop(game);
-    game.update(1.0f);
+    game.update(0.25f);
+    game.update(0.25f);
+    game.update(0.25f);
 
     ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::BallReady);
     ASSERT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
@@ -55,33 +59,37 @@ inline void advanceToPlaying(arkanoid::Game& game) {
 inline void advanceToLifeLostTransition(arkanoid::Game& game) {
     advanceToPlaying(game);
 
-    game.setInput(false, true, false);
-    game.update(4.0f);
-    ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::Playing);
+    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
+    mutableState.ball.x = 400.0f;
+    mutableState.ball.y = 710.0f;
+    mutableState.ball.vx = 0.0f;
+    mutableState.ball.vy = 100.0f;
 
-    game.update(2.0f);
+    game.setInput(false, false, false);
+    game.update(0.20f);
     ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::LifeLostTransition);
     ASSERT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
 
 inline void advanceToLifeLostTransitionAfterBrickHit(arkanoid::Game& game) {
-    advanceToBallReady(game);
+    advanceToPlaying(game);
 
-    game.setInput(true, false, false);
-    game.update(1.05f);
-    ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::BallReady);
-
-    game.setInput(false, false, true);
-    game.update(0.05f);
-    ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::Playing);
-
+    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
+    const arkanoid::BrickState firstBrick = mutableState.bricks[0];
+    mutableState.ball.x = firstBrick.x + 1.0f;
+    mutableState.ball.y = firstBrick.y - 5.0f;
+    mutableState.ball.vx = 0.0f;
+    mutableState.ball.vy = 100.0f;
     game.setInput(false, false, false);
-    game.update(1.30f);
+    game.update(0.10f);
     ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::Playing);
     ASSERT_FALSE(game.getState().bricks[0].alive);
 
-    game.setInput(false, true, false);
-    game.update(2.50f);
+    mutableState.ball.x = 400.0f;
+    mutableState.ball.y = 710.0f;
+    mutableState.ball.vx = 0.0f;
+    mutableState.ball.vy = 100.0f;
+    game.update(0.20f);
     ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::LifeLostTransition);
     ASSERT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
 }
