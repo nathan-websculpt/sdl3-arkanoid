@@ -18,9 +18,41 @@ function Fail([string]$Message) {
     throw $Message
 }
 
+function Test-FirstPartyDiagnosticPath([string]$Path) {
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        return $false
+    }
+
+    try {
+        $trimmedPath = $Path.Trim().Trim([char[]]@('"'))
+        $diagnosticPath = Get-FullPath $trimmedPath
+        $firstPartyRoots = @(
+            (Join-Path $repoRoot "src")
+            (Join-Path $repoRoot "include")
+        )
+
+        foreach ($root in $firstPartyRoots) {
+            $rootPrefix = (Remove-TrailingPathSeparators -Path (Get-FullPath $root)) + [System.IO.Path]::DirectorySeparatorChar
+            if ($diagnosticPath.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+                return $true
+            }
+        }
+    } catch {
+        return $false
+    }
+
+    return $false
+}
+
 function Get-DiagnosticLines([object[]]$Lines) {
-    $diagnosticPattern = 'warning C\d{4}|error C\d{4}|C264\d{2}|C268\d{2}|C6\d{3}'
-    return @($Lines | ForEach-Object { $_.ToString() } | Where-Object { $_ -match $diagnosticPattern })
+    $sourceDiagnosticPattern = '^\s*(?:\d+>)?(?<Path>.+?)\(\d+(?:,\d+)?\):\s+(?:warning|error)\s+C\d{4,5}\b'
+
+    return @($Lines | ForEach-Object {
+            $line = $_.ToString()
+            if ($line -match $sourceDiagnosticPattern -and (Test-FirstPartyDiagnosticPath -Path $Matches.Path)) {
+                $line
+            }
+        })
 }
 
 function Write-AnalyzeSummary([string]$Message, [object[]]$Diagnostics) {
@@ -83,9 +115,11 @@ try {
     }
 
     if ($diagnostics.Count -gt 0) {
-        Write-AnalyzeSummary -Message "Analyze completed, but warnings or static-analysis diagnostics were found. Review the output above." -Diagnostics $diagnostics
+        $diagnosticFailureMessage = "Analyze completed with $($diagnostics.Count) first-party compiler warning/static-analysis diagnostic line(s)."
+        Write-AnalyzeSummary -Message $diagnosticFailureMessage -Diagnostics $diagnostics
+        Fail $diagnosticFailureMessage
     } else {
-        Write-AnalyzeSummary -Message "Analyze completed successfully with no detected compiler warnings or static-analysis diagnostics." -Diagnostics @()
+        Write-AnalyzeSummary -Message "Analyze completed successfully with no detected first-party compiler warnings or static-analysis diagnostics." -Diagnostics @()
     }
 } catch {
     [Console]::Error.WriteLine($_.Exception.Message)

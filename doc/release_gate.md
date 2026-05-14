@@ -6,6 +6,15 @@ Run the packaged Windows release gate:
 .\tools\windows\release.ps1
 ```
 
+This gate validates the Release build, tests, package, extraction paths, and startup smoke checks. It does not run static analysis. For full local safety validation, run the fail-closed analyzer lane first:
+
+```powershell
+.\tools\windows\analyze.ps1
+.\tools\windows\release.ps1
+```
+
+`analyze.ps1` exits nonzero for first-party compiler warnings and MSVC `/analyze` diagnostics under `src/` or `include/`.
+
 If PowerShell blocks script execution, use the one-off fallback:
 
 ```powershell
@@ -47,4 +56,4 @@ Artifacts:
 
 `-BuildIdentity` defaults to `local`. It is written as `buildIdentity` in the per-run manifest, `release-status.json`, and `release-latest.json`. It does not change the generated run ID, staging paths, zip name, or promoted artifact paths.
 
-The release gate is fail-closed: any failed command, missing artifact, GUI-subsystem mismatch, smoke timeout, nonzero smoke exit, zip validation failure, or extraction-path failure stops before new artifacts are promoted.
+Within its packaged release scope, the release gate is fail-closed: any failed command, missing artifact, GUI-subsystem mismatch, smoke timeout, nonzero smoke exit, zip validation failure, or extraction-path failure stops before new artifacts are promoted.

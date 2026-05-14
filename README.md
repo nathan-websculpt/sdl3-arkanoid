@@ -41,6 +41,8 @@ $env:VCPKG_ROOT = "C:\path\to\vcpkg"
 .\tools\windows\release.ps1
 ```
 
+For full local safety validation, run the fail-closed analyzer lane before the packaged release gate.
+
 PowerShell may require a one-session execution-policy bypass:
 
 ```powershell
@@ -62,7 +64,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\tools\windows\test.ps1 -Config Release
 .\tools\windows\test.ps1 -TestFilter GameState
 
-# Static analysis diagnostics build lane.
+# Fail-closed static analysis diagnostics build lane.
 .\tools\windows\analyze.ps1
 
 # Local portable Windows release gate.

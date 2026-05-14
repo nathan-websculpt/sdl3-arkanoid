@@ -92,7 +92,7 @@ ctest --preset windows-debug-tests --output-on-failure --no-tests=error
 .\tools\windows\analyze.ps1 -VcpkgRoot "C:\path\to\vcpkg"
 ```
 
-`analyze.ps1` uses `windows-vcpkg-analyze`, writes to `out/build-win-vcpkg-analyze`, configures `/analyze` for selected targets, and builds the production `arkanoid` target. It is a diagnostics build lane, not a test runner. Use `test.ps1` for unit tests and `release.ps1` for the full release validation gate. `analyze.ps1` supports `-Clean`, `-SkipConfigure`, and `-VcpkgRoot`; `-Clean` and `-SkipConfigure` cannot be combined.
+`analyze.ps1` uses `windows-vcpkg-analyze`, writes to `out/build-win-vcpkg-analyze`, configures `/analyze` for selected targets, and builds the production `arkanoid` target. It exits nonzero on configure/build failure and on first-party compiler warnings or MSVC `/analyze` diagnostics reported under `src/` or `include/`. It is a diagnostics build lane, not a test runner. Use `test.ps1` for unit tests. Full local safety validation runs `analyze.ps1` first, then the packaged `release.ps1` gate. `analyze.ps1` supports `-Clean`, `-SkipConfigure`, and `-VcpkgRoot`; `-Clean` and `-SkipConfigure` cannot be combined.
 
 ## Release Gate
 
@@ -103,7 +103,7 @@ ctest --preset windows-debug-tests --output-on-failure --no-tests=error
 .\tools\windows\release.ps1 -VcpkgRoot "C:\path\to\vcpkg"
 ```
 
-`release.ps1` validates the Windows host and preset contract, configures `windows-vcpkg`, builds Release `arkanoid`, builds Release `arkanoid_tests` with `windows-release`, runs `windows-release-tests`, installs to `out/dist/_runs/<run-id>/stage`, validates and smokes the package, creates `arkanoid-win64.zip`, extracts and validates it from ASCII and non-ASCII paths, then promotes canonical outputs under `out/dist`.
+`release.ps1` validates the Windows host and preset contract, configures `windows-vcpkg`, builds Release `arkanoid`, builds Release `arkanoid_tests` with `windows-release`, runs `windows-release-tests`, installs to `out/dist/_runs/<run-id>/stage`, validates and smokes the package, creates `arkanoid-win64.zip`, extracts and validates it from ASCII and non-ASCII paths, then promotes canonical outputs under `out/dist`. It does not run the analyzer lane; run `analyze.ps1` first for full local safety validation.
 
 `-BuildIdentity` defaults to `local`. It is metadata only, recorded as `buildIdentity` in the run manifest and release JSON; it does not affect run IDs, staging paths, zip names, or promoted paths.
 
