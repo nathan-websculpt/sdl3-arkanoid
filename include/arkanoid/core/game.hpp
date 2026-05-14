@@ -5,9 +5,11 @@
 
 namespace arkanoid {
 
+#if defined(ARKANOID_ENABLE_GAME_TEST_ACCESS)
 namespace test {
 struct GameTestAccess;
 } // namespace test
+#endif
 
 class Game final {
   public:
@@ -26,7 +28,9 @@ class Game final {
     [[nodiscard]] const GameState& getState() const;
 
   private:
+#if defined(ARKANOID_ENABLE_GAME_TEST_ACCESS)
     friend struct test::GameTestAccess;
+#endif
 
     GameState m_state;
     bool m_moveLeftHeld{};

@@ -156,10 +156,8 @@ TEST(GameState, PaddleMovementClampsToBoundsWhileBallReady) {
     arkanoid::Game game;
     advanceToBallReady(game);
 
-    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
-
     game.setInput(true, false, false);
-    mutableState.paddle.x = arkanoid::kPlayfieldMinX + 10.0f;
+    setBallReadyPaddleX(game, arkanoid::kPlayfieldMinX + 10.0f);
     game.update(0.25f);
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::BallReady);
@@ -167,7 +165,7 @@ TEST(GameState, PaddleMovementClampsToBoundsWhileBallReady) {
     EXPECT_FLOAT_EQ(game.getState().ball.x, arkanoid::kPlayfieldMinX);
 
     game.setInput(false, true, false);
-    mutableState.paddle.x = arkanoid::kPlayfieldMaxX - 10.0f;
+    setBallReadyPaddleX(game, arkanoid::kPlayfieldMaxX - 10.0f);
     game.update(0.25f);
 
     EXPECT_EQ(game.getState().phase, arkanoid::GamePhase::BallReady);

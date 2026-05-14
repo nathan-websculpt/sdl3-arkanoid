@@ -9,11 +9,33 @@
 #include "arkanoid/core/game.hpp"
 #include "arkanoid/core/game_geometry.hpp"
 
+#if !defined(ARKANOID_ENABLE_GAME_TEST_ACCESS)
+#error "game_test_helpers.hpp requires ARKANOID_ENABLE_GAME_TEST_ACCESS"
+#endif
+
 namespace arkanoid::test {
 
 struct GameTestAccess final {
-    static arkanoid::GameState& mutableState(arkanoid::Game& game) noexcept {
-        return game.m_state;
+    static void setBall(arkanoid::Game& game, float x, float y, float vx, float vy) noexcept {
+        game.m_state.ball.x = x;
+        game.m_state.ball.y = y;
+        game.m_state.ball.vx = vx;
+        game.m_state.ball.vy = vy;
+    }
+
+    static void setPaddleX(arkanoid::Game& game, float paddleX) noexcept {
+        game.m_state.paddle.x = paddleX;
+    }
+
+    static void prepareFinalBrickHit(arkanoid::Game& game, float ballVy) noexcept {
+        for (arkanoid::BrickState& brick : game.m_state.bricks) {
+            brick.alive = false;
+        }
+
+        arkanoid::BrickState& finalBrick = game.m_state.bricks[0];
+        finalBrick.alive = true;
+        game.m_state.score = static_cast<std::uint32_t>(arkanoid::kBrickCount - std::size_t{1});
+        setBall(game, finalBrick.x + 1.0f, finalBrick.y - 5.0f, 0.0f, ballVy);
     }
 };
 
@@ -59,11 +81,7 @@ inline void advanceToPlaying(arkanoid::Game& game) {
 inline void advanceToLifeLostTransition(arkanoid::Game& game) {
     advanceToPlaying(game);
 
-    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
-    mutableState.ball.x = 400.0f;
-    mutableState.ball.y = 710.0f;
-    mutableState.ball.vx = 0.0f;
-    mutableState.ball.vy = 100.0f;
+    GameTestAccess::setBall(game, 400.0f, 710.0f, 0.0f, 100.0f);
 
     game.setInput(false, false, false);
     game.update(0.20f);
@@ -74,21 +92,14 @@ inline void advanceToLifeLostTransition(arkanoid::Game& game) {
 inline void advanceToLifeLostTransitionAfterBrickHit(arkanoid::Game& game) {
     advanceToPlaying(game);
 
-    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
-    const arkanoid::BrickState firstBrick = mutableState.bricks[0];
-    mutableState.ball.x = firstBrick.x + 1.0f;
-    mutableState.ball.y = firstBrick.y - 5.0f;
-    mutableState.ball.vx = 0.0f;
-    mutableState.ball.vy = 100.0f;
+    const arkanoid::BrickState firstBrick = game.getState().bricks[0];
+    GameTestAccess::setBall(game, firstBrick.x + 1.0f, firstBrick.y - 5.0f, 0.0f, 100.0f);
     game.setInput(false, false, false);
     game.update(0.10f);
     ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::Playing);
     ASSERT_FALSE(game.getState().bricks[0].alive);
 
-    mutableState.ball.x = 400.0f;
-    mutableState.ball.y = 710.0f;
-    mutableState.ball.vx = 0.0f;
-    mutableState.ball.vy = 100.0f;
+    GameTestAccess::setBall(game, 400.0f, 710.0f, 0.0f, 100.0f);
     game.update(0.20f);
     ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::LifeLostTransition);
     ASSERT_FLOAT_EQ(game.getState().phaseTime, 0.0f);
@@ -110,19 +121,14 @@ inline void advanceLifeLostTransitionToCountdownYellow1(arkanoid::Game& game) {
 inline void seedPlayingBallState(arkanoid::Game& game, float x, float y, float vx, float vy) {
     advanceToPlaying(game);
 
-    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
-    mutableState.ball.x = x;
-    mutableState.ball.y = y;
-    mutableState.ball.vx = vx;
-    mutableState.ball.vy = vy;
+    GameTestAccess::setBall(game, x, y, vx, vy);
 }
 
 inline void seedPlayingPaddleAndBallState(arkanoid::Game& game, float paddleX, float ballX,
                                           float ballY, float ballVx, float ballVy) {
     seedPlayingBallState(game, ballX, ballY, ballVx, ballVy);
 
-    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
-    mutableState.paddle.x = paddleX;
+    GameTestAccess::setPaddleX(game, paddleX);
 }
 
 inline std::size_t aliveBrickCount(const arkanoid::GameState& state) {
@@ -131,21 +137,23 @@ inline std::size_t aliveBrickCount(const arkanoid::GameState& state) {
                       [](const arkanoid::BrickState& brick) { return brick.alive; }));
 }
 
+inline void setBallReadyPaddleX(arkanoid::Game& game, float paddleX) {
+    ASSERT_EQ(game.getState().phase, arkanoid::GamePhase::BallReady);
+    GameTestAccess::setPaddleX(game, paddleX);
+}
+
+inline void setBallForFirstBrickHit(arkanoid::Game& game, float ballVy) {
+    const arkanoid::BrickState firstBrick = game.getState().bricks[0];
+    GameTestAccess::setBall(game, firstBrick.x + 1.0f, firstBrick.y - 5.0f, 0.0f, ballVy);
+}
+
+inline void setBallForNonHit(arkanoid::Game& game) {
+    GameTestAccess::setBall(game, 900.0f, 500.0f, 0.0f, 50.0f);
+}
+
 inline void seedFinalBrickHit(arkanoid::Game& game, float ballVy) {
     advanceToPlaying(game);
-
-    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
-    for (arkanoid::BrickState& brick : mutableState.bricks) {
-        brick.alive = false;
-    }
-
-    arkanoid::BrickState& finalBrick = mutableState.bricks[0];
-    finalBrick.alive = true;
-    mutableState.score = static_cast<std::uint32_t>(arkanoid::kBrickCount - std::size_t{1});
-    mutableState.ball.x = finalBrick.x + 1.0f;
-    mutableState.ball.y = finalBrick.y - 5.0f;
-    mutableState.ball.vx = 0.0f;
-    mutableState.ball.vy = ballVy;
+    GameTestAccess::prepareFinalBrickHit(game, ballVy);
 }
 
 inline void advanceToBoardClearedTransition(arkanoid::Game& game, bool serveHeld) {

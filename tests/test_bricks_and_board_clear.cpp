@@ -11,12 +11,7 @@ TEST(GameState, BrickHitRemovesExactlyOneBrick) {
     arkanoid::Game game;
     advanceToPlaying(game);
 
-    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
-    const arkanoid::BrickState firstBrick = mutableState.bricks[0];
-    mutableState.ball.x = firstBrick.x + 1.0f;
-    mutableState.ball.y = firstBrick.y - 5.0f;
-    mutableState.ball.vx = 0.0f;
-    mutableState.ball.vy = 100.0f;
+    setBallForFirstBrickHit(game, 100.0f);
 
     const std::size_t aliveBefore = aliveBrickCount(game.getState());
     const auto scoreBefore = game.getState().score;
@@ -36,12 +31,7 @@ TEST(GameState, RemovedBrickNoLongerCollides) {
     arkanoid::Game game;
     advanceToPlaying(game);
 
-    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
-    const arkanoid::BrickState firstBrick = mutableState.bricks[0];
-    mutableState.ball.x = firstBrick.x + 1.0f;
-    mutableState.ball.y = firstBrick.y - 5.0f;
-    mutableState.ball.vx = 0.0f;
-    mutableState.ball.vy = 100.0f;
+    setBallForFirstBrickHit(game, 100.0f);
 
     const auto scoreBeforeFirstHit = game.getState().score;
 
@@ -51,10 +41,7 @@ TEST(GameState, RemovedBrickNoLongerCollides) {
     ASSERT_FALSE(game.getState().bricks[0].alive);
     ASSERT_EQ(game.getState().score, scoreBeforeFirstHit + 1u);
 
-    mutableState.ball.x = firstBrick.x + 1.0f;
-    mutableState.ball.y = firstBrick.y - 5.0f;
-    mutableState.ball.vx = 0.0f;
-    mutableState.ball.vy = 100.0f;
+    setBallForFirstBrickHit(game, 100.0f);
 
     const std::size_t aliveBeforeSecondPass = aliveBrickCount(game.getState());
     const auto scoreBeforeSecondPass = game.getState().score;
@@ -71,11 +58,7 @@ TEST(GameState, NonHitLeavesBricksUnchanged) {
     arkanoid::Game game;
     advanceToPlaying(game);
 
-    arkanoid::GameState& mutableState = GameTestAccess::mutableState(game);
-    mutableState.ball.x = 900.0f;
-    mutableState.ball.y = 500.0f;
-    mutableState.ball.vx = 0.0f;
-    mutableState.ball.vy = 50.0f;
+    setBallForNonHit(game);
 
     const std::size_t aliveBefore = aliveBrickCount(game.getState());
     const auto scoreBefore = game.getState().score;
