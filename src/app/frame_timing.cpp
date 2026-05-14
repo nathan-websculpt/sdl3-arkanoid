@@ -27,9 +27,11 @@ void FixedStepTimer::beginFrame() {
     if (!std::isfinite(frameDeltaSeconds) || frameDeltaSeconds < 0.0f) {
         frameDeltaSeconds = 0.0f;
     }
+
     if (frameDeltaSeconds > kMaxFrameDeltaSeconds) {
         frameDeltaSeconds = kMaxFrameDeltaSeconds;
     }
+    
     m_accumulatorSeconds += frameDeltaSeconds;
 }
 

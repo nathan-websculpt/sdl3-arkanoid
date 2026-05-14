@@ -4,7 +4,7 @@
 
 Small C++20 / SDL3 Arkanoid-style game with a Windows-first CMake/vcpkg workflow. The runtime stays intentionally direct: SDL input is sampled, fixed-step gameplay mutates `GameState`, and rendering reads from that state.
 
-## Why This Project Exists
+## Why this Project Exists
 
 Many small game projects add abstraction before the gameplay needs it.
 This project keeps the runtime small and explicit:
@@ -21,7 +21,7 @@ This project keeps the runtime small and explicit:
 - no powerups or special brick types
 - no lives counter
 - no game-over or win screen
-- board clear auto-restarts a new game
+- clearing all bricks auto-restarts a new game
 
 ## Quick Start
 

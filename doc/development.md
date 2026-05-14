@@ -1,4 +1,4 @@
-# Development And Validation
+# Development and Validation
 
 This repo's canonical Windows workflow is preset-first through vcpkg manifest mode. Use the PowerShell helpers in `tools/windows/` for day-to-day work; they validate the Windows preset contract, run from the repo root, and restore the caller's working directory and previous `VCPKG_ROOT` when they exit.
 
@@ -15,7 +15,7 @@ If PowerShell blocks scripts in a local shell:
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
-## Presets And Output
+## Presets and Output
 
 The main configure preset is `windows-vcpkg`. It writes to `out/build-win-vcpkg`, uses x64 architecture, `VCPKG_TARGET_TRIPLET=x64-windows`, and the preset-level toolchain file `$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake`.
 

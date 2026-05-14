@@ -136,9 +136,11 @@ void Game::update(float dt) {
     dt = std::min(dt, kMaxUpdateDeltaSeconds);
 
     const int direction = movementDirection(m_moveLeftHeld, m_moveRightHeld);
+
     if (isPaddleMovementEnabled(m_state.phase) && direction != 0) {
         m_state.paddle.x += static_cast<float>(direction) * kPaddleSpeed * dt;
     }
+
     m_state.paddle.x = std::clamp(m_state.paddle.x, kPlayfieldMinX, kPlayfieldMaxX);
 
     m_state.phaseTime += dt;
@@ -251,6 +253,7 @@ void Game::update(float dt) {
             const float brickRight = brick.x + kBrickWidth;
             const bool overlapsBrickHorizontally =
                 m_state.ball.x >= brickLeft && m_state.ball.x <= brickRight;
+
             if (!overlapsBrickHorizontally) {
                 continue;
             }
@@ -260,6 +263,7 @@ void Game::update(float dt) {
             const bool crossedBrickTop = previousBallY < brickTop && m_state.ball.y >= brickTop;
             const bool crossedBrickBottom =
                 previousBallY > brickBottom && m_state.ball.y <= brickBottom;
+
             if (!crossedBrickTop && !crossedBrickBottom) {
                 continue;
             }
@@ -267,6 +271,7 @@ void Game::update(float dt) {
             brick.alive = false;
             m_state.ball.vy = -m_state.ball.vy;
             m_state.score += 1;
+
             if (!hasLiveBrick(m_state.bricks)) {
                 m_state.phase = GamePhase::BoardClearedTransition;
                 m_state.phaseTime = 0.0f;
@@ -276,6 +281,7 @@ void Game::update(float dt) {
 
         const bool crossedBottomBoundary =
             previousBallY < kPlayfieldMaxY && m_state.ball.y >= kPlayfieldMaxY;
+            
         if (m_state.phase == GamePhase::Playing && crossedBottomBoundary) {
             m_state.phase = GamePhase::LifeLostTransition;
             m_state.phaseTime = 0.0f;

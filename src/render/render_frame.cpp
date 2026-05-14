@@ -82,6 +82,7 @@ bool renderFrame(SDL_Renderer* renderer, const arkanoid::GameState& state) {
 
     const SDL_FRect ballRect{state.ball.x - (kBallSize * 0.5f), state.ball.y - (kBallSize * 0.5f),
                              kBallSize, kBallSize};
+
     if (!SDL_RenderFillRect(renderer, &ballRect)) {
         return false;
     }
@@ -96,8 +97,10 @@ bool renderFrame(SDL_Renderer* renderer, const arkanoid::GameState& state) {
 
         const float countdownIndicatorX =
             (static_cast<float>(kWindowWidth) * 0.5f) - (kCountdownIndicatorSize * 0.5f);
+
         const SDL_FRect countdownRect{countdownIndicatorX, kCountdownIndicatorY,
                                       kCountdownIndicatorSize, kCountdownIndicatorSize};
+                                      
         if (!SDL_RenderFillRect(renderer, &countdownRect)) {
             return false;
         }

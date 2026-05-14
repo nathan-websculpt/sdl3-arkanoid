@@ -65,6 +65,7 @@ int runApplication(RunMode runMode) {
 
     std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> renderer(
         SDL_CreateRenderer(window.get(), nullptr), SDL_DestroyRenderer);
+        
     if (!renderer) {
         SDL_Log("Failed to create SDL renderer: %s", SDL_GetError());
         return 1;
